@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pertemuan 2 — Membuat Database dan Tabel</title>
+    <style>
+        :root {
+            --bg-1: #0f0c29;
+            --bg-2: #302b63;
+            --bg-3: #24243e;
+            --accent: #7f5af0;
+            --accent-2: #2cb67d;
+            --text-light: #fffffe;
+            --text-muted: #94a1b2;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 50px 20px 40px;
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        body::before {
+            background: #7f5af0;
+            top: -150px;
+            left: -150px;
+        }
+
+        body::after {
+            background: #2cb67d;
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text-light);
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-2);
+            background: rgba(44, 182, 125, 0.12);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #fff, #b8b8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header p.subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 640px;
+        }
+
+        .meta-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+        }
+
+        .meta-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(127, 90, 240, 0.25);
+            flex-shrink: 0;
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            margin: 18px 0 8px;
+            color: #d8d4ff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .card ul, .card ol {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 10px 0 10px 20px;
+        }
+
+        .card li {
+            margin-bottom: 8px;
+        }
+
+        .card li strong {
+            color: var(--text-light);
+        }
+
+        .objek-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .objek-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .objek-item .icon {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .objek-item h4 {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .objek-item p {
+            font-size: 0.82rem;
+            margin: 0;
+        }
+
+        .info-box {
+            background: rgba(127, 90, 240, 0.1);
+            border: 1px solid rgba(127, 90, 240, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .info-box strong {
+            color: #b8a4ff;
+        }
+
+        .tip-box {
+            background: rgba(44, 182, 125, 0.1);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .tip-box strong {
+            color: #7fe0b4;
+        }
+
+        .warning-box {
+            background: rgba(242, 95, 76, 0.1);
+            border: 1px solid rgba(242, 95, 76, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .warning-box strong {
+            color: #f291ab;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        th {
+            color: var(--text-light);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .summary-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding-left: 26px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .summary-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-2);
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-btn.prev {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #7f5af0, #5e3bd4);
+            color: #fff;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Beranda</a>
+            <span>/</span>
+            <span>Pertemuan 2</span>
+        </div>
+
+        <header>
+            <span class="eyebrow">Microsoft Access · Sesi 02</span>
+            <h1>Membuat Database dan Tabel</h1>
+            <p class="subtitle">Membuat file database baru, mendesain struktur tabel, memahami tipe data, menetapkan primary key, dan input data ke dalam tabel.</p>
+            <div class="meta-bar">
+                <span class="meta-chip">⏱️ 90 menit</span>
+                <span class="meta-chip">🎯 Praktik Inti</span>
+                <span class="meta-chip">📦 Microsoft Access</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>Tujuan Pembelajaran</h2>
+            <ul>
+                <li>Mampu membuat file <strong>database baru</strong> menggunakan Microsoft Access.</li>
+                <li>Memahami cara mendesain <strong>struktur tabel</strong> melalui Design View.</li>
+                <li>Mengenal berbagai <strong>tipe data</strong> field beserta kegunaannya masing-masing.</li>
+                <li>Mampu menetapkan <strong>Primary Key</strong> pada sebuah tabel.</li>
+                <li>Mampu melakukan <strong>input, edit, dan hapus data</strong> melalui Datasheet View.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>1. Membuat Database Baru</h2>
+            <p>
+                Setiap pekerjaan di Microsoft Access dimulai dari sebuah file database (berekstensi
+                <strong>.accdb</strong>). Satu file database dapat menampung banyak tabel, query, form, dan report
+                sekaligus, sehingga sebaiknya satu file digunakan untuk satu topik/aplikasi.
+            </p>
+            <ol>
+                <li>Buka Microsoft Access, lalu pilih <strong>Blank Database</strong> pada Backstage View.</li>
+                <li>Beri nama file, misalnya <em>PerpustakaanKu.accdb</em>, lalu tentukan lokasi penyimpanan folder.</li>
+                <li>Klik tombol <strong>Create</strong> untuk membuat file database baru.</li>
+                <li>Access akan otomatis membuka <em>Table1</em> dalam mode Datasheet View, siap untuk didesain.</li>
+            </ol>
+            <div class="info-box">
+                <strong>Perlu diketahui:</strong> Nama file database sebaiknya singkat, deskriptif, dan tanpa spasi
+                atau karakter khusus, misalnya <em>DataSiswa.accdb</em> alih-alih <em>Data Siswa Kelas 1 (final).accdb</em>.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Mendesain Struktur Tabel</h2>
+            <p>
+                Tabel dapat didesain melalui dua tampilan: <strong>Datasheet View</strong> (langsung mengetik nama
+                field) atau <strong>Design View</strong> (menentukan nama field, tipe data, dan properti secara
+                rinci). Design View lebih disarankan untuk struktur tabel yang lebih kompleks.
+            </p>
+            <ol>
+                <li>Klik kanan pada <em>Table1</em> di Navigation Pane, pilih <strong>Design View</strong>.</li>
+                <li>Beri nama tabel, misalnya <em>Anggota</em>, lalu klik <strong>OK</strong>.</li>
+                <li>Pada kolom <strong>Field Name</strong>, ketikkan nama field satu per satu, misalnya: IDAnggota, Nama, Alamat, TanggalDaftar.</li>
+                <li>Pada kolom <strong>Data Type</strong>, pilih tipe data yang sesuai untuk setiap field.</li>
+                <li>Isi <strong>Description</strong> (opsional) untuk menjelaskan fungsi field tersebut.</li>
+                <li>Atur properti tambahan pada panel <strong>Field Properties</strong> di bagian bawah, misalnya Field Size atau Format.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>3. Tipe Data (Data Type) dalam Access</h2>
+            <p>Pemilihan tipe data yang tepat memengaruhi ukuran penyimpanan, validasi input, dan kemampuan pengolahan data selanjutnya.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipe Data</th>
+                        <th>Kegunaan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Short Text</td>
+                        <td>Teks pendek maksimal 255 karakter, misalnya Nama atau Alamat</td>
+                    </tr>
+                    <tr>
+                        <td>Long Text</td>
+                        <td>Teks panjang seperti deskripsi atau catatan</td>
+                    </tr>
+                    <tr>
+                        <td>Number</td>
+                        <td>Data angka untuk keperluan perhitungan, misalnya Jumlah Barang</td>
+                    </tr>
+                    <tr>
+                        <td>Date/Time</td>
+                        <td>Data tanggal dan/atau waktu, misalnya Tanggal Lahir</td>
+                    </tr>
+                    <tr>
+                        <td>Currency</td>
+                        <td>Data nilai uang dengan format mata uang otomatis</td>
+                    </tr>
+                    <tr>
+                        <td>AutoNumber</td>
+                        <td>Angka otomatis bertambah (increment), umum dipakai untuk Primary Key</td>
+                    </tr>
+                    <tr>
+                        <td>Yes/No</td>
+                        <td>Data logika/boolean, misalnya status Lunas atau Belum Lunas</td>
+                    </tr>
+                    <tr>
+                        <td>Lookup Wizard</td>
+                        <td>Menampilkan daftar pilihan nilai yang diambil dari tabel lain atau daftar tetap</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="tip-box">
+                <strong>Tips:</strong> Gunakan tipe data <em>AutoNumber</em> untuk field ID agar setiap record memiliki
+                identitas unik secara otomatis tanpa perlu diinput manual.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Menetapkan Primary Key</h2>
+            <p>
+                <strong>Primary Key</strong> adalah field yang nilainya unik untuk setiap record dan tidak boleh
+                kosong (null). Primary Key berfungsi sebagai identitas record dan menjadi dasar relasi antar tabel.
+            </p>
+            <ol>
+                <li>Pada Design View, klik pada baris field yang akan dijadikan Primary Key, misalnya <em>IDAnggota</em>.</li>
+                <li>Klik tombol <strong>Primary Key</strong> pada Ribbon tab Design, atau klik kanan field lalu pilih <strong>Primary Key</strong>.</li>
+                <li>Ikon kunci 🔑 akan muncul di sebelah kiri nama field yang menandakan field tersebut adalah Primary Key.</li>
+            </ol>
+            <div class="warning-box">
+                <strong>Perhatian:</strong> Setiap tabel sebaiknya hanya memiliki satu Primary Key. Field yang
+                dijadikan Primary Key tidak boleh memiliki nilai duplikat maupun kosong.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. Input Data melalui Datasheet View</h2>
+            <p>
+                Setelah struktur tabel selesai didesain, data dapat dimasukkan melalui <strong>Datasheet View</strong>
+                yang tampilannya menyerupai lembar kerja spreadsheet.
+            </p>
+            <ol>
+                <li>Simpan tabel, lalu klik tombol <strong>View</strong> di pojok kiri atas dan pilih <strong>Datasheet View</strong>.</li>
+                <li>Ketikkan data pada setiap baris sesuai dengan field yang telah dibuat.</li>
+                <li>Gunakan tombol <strong>Tab</strong> untuk berpindah antar kolom dan <strong>Enter</strong> untuk baris baru.</li>
+                <li>Untuk mengedit data, klik langsung pada sel yang ingin diubah.</li>
+                <li>Untuk menghapus record, klik kanan pada selector baris lalu pilih <strong>Delete Record</strong>.</li>
+            </ol>
+            <div class="info-box">
+                <strong>Perlu diketahui:</strong> Access otomatis menyimpan setiap perubahan data saat berpindah baris,
+                sehingga tidak diperlukan perintah "Save" khusus untuk data yang diinput.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>6. Langkah Praktik</h2>
+            <ol>
+                <li>Buat database baru bernama <em>PerpustakaanKu.accdb</em>.</li>
+                <li>Buat tabel <strong>Anggota</strong> dengan field: IDAnggota (AutoNumber, Primary Key), Nama (Short Text), Alamat (Short Text), TanggalDaftar (Date/Time).</li>
+                <li>Buat tabel <strong>Buku</strong> dengan field: IDBuku (AutoNumber, Primary Key), JudulBuku (Short Text), Pengarang (Short Text), Stok (Number).</li>
+                <li>Masukkan minimal 5 data pada masing-masing tabel melalui Datasheet View.</li>
+                <li>Simpan database.</li>
+            </ol>
+            <div class="tip-box">
+                <strong>Tips:</strong> Rencanakan terlebih dahulu daftar field dan tipe datanya di atas kertas sebelum
+                mulai mendesain tabel di Access agar struktur database lebih rapi dan terarah.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Ringkasan</h2>
+            <ul class="summary-list">
+                <li>Database baru dibuat melalui Blank Database pada Backstage View dan disimpan dalam format .accdb.</li>
+                <li>Struktur tabel didesain melalui Design View dengan menentukan Field Name dan Data Type.</li>
+                <li>Setiap field memiliki tipe data yang berbeda sesuai jenis data yang akan disimpan.</li>
+                <li>Primary Key menjamin setiap record memiliki identitas unik dan menjadi dasar relasi antar tabel.</li>
+                <li>Input data dilakukan melalui Datasheet View dan tersimpan otomatis setiap berpindah baris.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Latihan Mandiri</h2>
+            <ol>
+                <li>Jelaskan perbedaan antara tipe data <em>Short Text</em> dan <em>Long Text</em>.</li>
+                <li>Mengapa field Primary Key tidak boleh memiliki nilai yang kosong atau duplikat?</li>
+                <li>Buat tabel baru bernama <em>Peminjaman</em> dengan field: IDPeminjaman (AutoNumber, Primary Key), TanggalPinjam (Date/Time), TanggalKembali (Date/Time), Status (Yes/No).</li>
+            </ol>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="pertemuan01.html" class="nav-btn prev">← Pertemuan 1</a>
+            <a href="pertemuan03.html" class="nav-btn next">Lanjut ke Pertemuan 3 →</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 — Panduan Praktikum Database | Microsoft Access & Neon.Tech</p>
+        </footer>
+    </div>
+</body>
+</html>
