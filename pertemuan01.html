@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pertemuan 1 — Pengenalan Database & Microsoft Access</title>
+    <style>
+        :root {
+            --bg-1: #0f0c29;
+            --bg-2: #302b63;
+            --bg-3: #24243e;
+            --accent: #7f5af0;
+            --accent-2: #2cb67d;
+            --text-light: #fffffe;
+            --text-muted: #94a1b2;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 50px 20px 40px;
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        body::before {
+            background: #7f5af0;
+            top: -150px;
+            left: -150px;
+        }
+
+        body::after {
+            background: #2cb67d;
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text-light);
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-2);
+            background: rgba(44, 182, 125, 0.12);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #fff, #b8b8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header p.subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 640px;
+        }
+
+        .meta-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+        }
+
+        .meta-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(127, 90, 240, 0.25);
+            flex-shrink: 0;
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            margin: 18px 0 8px;
+            color: #d8d4ff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .card ul, .card ol {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 10px 0 10px 20px;
+        }
+
+        .card li {
+            margin-bottom: 8px;
+        }
+
+        .card li strong {
+            color: var(--text-light);
+        }
+
+        .objek-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .objek-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .objek-item .icon {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .objek-item h4 {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .objek-item p {
+            font-size: 0.82rem;
+            margin: 0;
+        }
+
+        .info-box {
+            background: rgba(127, 90, 240, 0.1);
+            border: 1px solid rgba(127, 90, 240, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .info-box strong {
+            color: #b8a4ff;
+        }
+
+        .tip-box {
+            background: rgba(44, 182, 125, 0.1);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .tip-box strong {
+            color: #7fe0b4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        th {
+            color: var(--text-light);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .summary-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding-left: 26px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .summary-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-2);
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-btn.prev {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #7f5af0, #5e3bd4);
+            color: #fff;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Beranda</a>
+            <span>/</span>
+            <span>Pertemuan 1</span>
+        </div>
+
+        <header>
+            <span class="eyebrow">Microsoft Access · Sesi 01</span>
+            <h1>Pengenalan Database & Microsoft Access</h1>
+            <p class="subtitle">Memahami konsep dasar database relasional serta mengenal antarmuka dan objek-objek utama dalam Microsoft Access.</p>
+            <div class="meta-bar">
+                <span class="meta-chip">⏱️ 90 menit</span>
+                <span class="meta-chip">🎯 Teori & Praktik Dasar</span>
+                <span class="meta-chip">📦 Microsoft Access</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>Tujuan Pembelajaran</h2>
+            <ul>
+                <li>Memahami apa itu <strong>database</strong> dan mengapa data perlu dikelola secara terstruktur.</li>
+                <li>Mengenal konsep <strong>database relasional</strong> (tabel, baris, kolom, relasi).</li>
+                <li>Mengenal <strong>Microsoft Access</strong> sebagai aplikasi RDBMS berbasis desktop.</li>
+                <li>Memahami fungsi setiap <strong>objek utama</strong> dalam Access: Table, Query, Form, Report, Macro, dan Module.</li>
+                <li>Mampu membuka, menavigasi, dan mengenali komponen antarmuka Access (Ribbon, Navigation Pane, Backstage View).</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>1. Apa itu Database?</h2>
+            <p>
+                <strong>Database</strong> (basis data) adalah kumpulan data yang terorganisir sedemikian rupa sehingga
+                dapat diakses, dikelola, dan diperbarui dengan mudah. Data disimpan secara terstruktur agar tidak
+                terjadi duplikasi yang tidak perlu dan mudah dicari kembali (retrieval).
+            </p>
+            <p>Beberapa alasan mengapa data perlu disimpan dalam database dibandingkan hanya menggunakan spreadsheet biasa:</p>
+            <ul>
+                <li><strong>Konsistensi data</strong> — menghindari data ganda atau bertentangan.</li>
+                <li><strong>Integritas data</strong> — aturan validasi memastikan data yang masuk sesuai format.</li>
+                <li><strong>Keamanan</strong> — akses data dapat dibatasi berdasarkan pengguna.</li>
+                <li><strong>Skalabilitas</strong> — mampu menangani data dalam jumlah besar secara efisien.</li>
+                <li><strong>Relasi antar data</strong> — memungkinkan data yang saling berhubungan dikelola bersama.</li>
+            </ul>
+
+            <h3>Database Relasional (RDBMS)</h3>
+            <p>
+                <strong>RDBMS (Relational Database Management System)</strong> adalah sistem manajemen basis data yang
+                menyimpan data dalam bentuk <strong>tabel-tabel</strong> yang saling berhubungan (berelasi) melalui kunci
+                (key). Contoh RDBMS: Microsoft Access, MySQL, PostgreSQL, SQL Server, Oracle.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Istilah</th>
+                        <th>Penjelasan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Table (Tabel)</td>
+                        <td>Kumpulan data sejenis yang tersusun dalam baris dan kolom</td>
+                    </tr>
+                    <tr>
+                        <td>Field (Kolom)</td>
+                        <td>Atribut/kategori data, misalnya Nama, Alamat, Tanggal Lahir</td>
+                    </tr>
+                    <tr>
+                        <td>Record (Baris)</td>
+                        <td>Satu kesatuan data lengkap dalam tabel, misalnya data satu siswa</td>
+                    </tr>
+                    <tr>
+                        <td>Primary Key</td>
+                        <td>Kolom unik yang menjadi identitas setiap record (tidak boleh sama/kosong)</td>
+                    </tr>
+                    <tr>
+                        <td>Relationship</td>
+                        <td>Hubungan antar tabel melalui key yang saling terkait</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>2. Mengenal Microsoft Access</h2>
+            <p>
+                <strong>Microsoft Access</strong> adalah aplikasi RDBMS berbasis desktop dari Microsoft Office yang
+                memungkinkan pengguna membuat, mengelola, dan mengolah database tanpa perlu menulis banyak kode. Access
+                menyediakan antarmuka visual (GUI) untuk membuat tabel, query, form, dan report secara drag-and-drop.
+            </p>
+            <div class="info-box">
+                <strong>Kapan menggunakan Access?</strong> Cocok untuk aplikasi database skala kecil–menengah seperti
+                pencatatan inventori, data siswa, data pelanggan, atau prototipe sebelum migrasi ke database server
+                seperti SQL Server atau PostgreSQL.
+            </div>
+
+            <h3>Komponen Antarmuka Access</h3>
+            <ul>
+                <li><strong>Backstage View</strong> — tampilan awal untuk membuat database baru atau membuka database yang sudah ada.</li>
+                <li><strong>Ribbon</strong> — kumpulan tab (Home, Create, External Data, Database Tools) berisi tombol perintah.</li>
+                <li><strong>Navigation Pane</strong> — panel di sisi kiri yang menampilkan seluruh objek database (tabel, query, form, report).</li>
+                <li><strong>Object Tabs</strong> — area kerja utama tempat tabel/form/report yang sedang dibuka ditampilkan.</li>
+                <li><strong>Status Bar</strong> — informasi status di bagian bawah jendela, termasuk tombol ganti tampilan (View).</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>3. Objek Utama dalam Microsoft Access</h2>
+            <p>Sebuah database Access terdiri dari beberapa jenis objek yang saling terintegrasi:</p>
+            <div class="objek-grid">
+                <div class="objek-item">
+                    <span class="icon">🗄️</span>
+                    <h4>Table</h4>
+                    <p>Menyimpan data mentah dalam struktur baris dan kolom. Objek paling dasar dalam database.</p>
+                </div>
+                <div class="objek-item">
+                    <span class="icon">🔍</span>
+                    <h4>Query</h4>
+                    <p>Digunakan untuk mengambil, menyaring, dan mengolah data dari satu atau beberapa tabel.</p>
+                </div>
+                <div class="objek-item">
+                    <span class="icon">🧾</span>
+                    <h4>Form</h4>
+                    <p>Antarmuka untuk memasukkan dan mengedit data dengan tampilan yang lebih ramah pengguna.</p>
+                </div>
+                <div class="objek-item">
+                    <span class="icon">📊</span>
+                    <h4>Report</h4>
+                    <p>Menyajikan data dalam format cetak/tampilan ringkas untuk keperluan laporan.</p>
+                </div>
+                <div class="objek-item">
+                    <span class="icon">⚙️</span>
+                    <h4>Macro</h4>
+                    <p>Kumpulan perintah otomatis tanpa kode, untuk menjalankan aksi tertentu secara otomatis.</p>
+                </div>
+                <div class="objek-item">
+                    <span class="icon">💻</span>
+                    <h4>Module</h4>
+                    <p>Kumpulan kode VBA (Visual Basic for Applications) untuk logika program yang lebih kompleks.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Langkah Praktik: Menjelajahi Antarmuka Access</h2>
+            <ol>
+                <li>Buka aplikasi <strong>Microsoft Access</strong> dari Start Menu.</li>
+                <li>Pada <strong>Backstage View</strong>, perhatikan pilihan "Blank Database" dan template yang tersedia.</li>
+                <li>Klik <strong>Blank Database</strong>, beri nama <em>LatihanSesi1.accdb</em>, lalu klik <strong>Create</strong>.</li>
+                <li>Perhatikan <strong>Navigation Pane</strong> di sisi kiri — akan muncul Table1 secara otomatis.</li>
+                <li>Jelajahi tab-tab pada <strong>Ribbon</strong>: Home, Create, External Data, Database Tools.</li>
+                <li>Coba ganti tampilan tabel dari <strong>Datasheet View</strong> ke <strong>Design View</strong> menggunakan tombol View di pojok kiri bawah.</li>
+                <li>Simpan database, lalu tutup Access.</li>
+            </ol>
+            <div class="tip-box">
+                <strong>Tips:</strong> Biasakan menyimpan database dengan nama yang deskriptif dan simpan di folder
+                khusus per pertemuan agar mudah dicari kembali saat latihan atau ujian.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Ringkasan</h2>
+            <ul class="summary-list">
+                <li>Database menyimpan data secara terstruktur agar konsisten, aman, dan mudah dikelola.</li>
+                <li>RDBMS mengorganisir data dalam tabel-tabel yang saling berelasi melalui key.</li>
+                <li>Microsoft Access adalah RDBMS desktop dengan antarmuka visual, cocok untuk skala kecil–menengah.</li>
+                <li>Objek utama Access: Table, Query, Form, Report, Macro, dan Module.</li>
+                <li>Navigation Pane dan Ribbon adalah dua komponen antarmuka yang paling sering digunakan.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Latihan Mandiri</h2>
+            <ol>
+                <li>Sebutkan 3 contoh RDBMS selain Microsoft Access.</li>
+                <li>Jelaskan perbedaan antara <em>Field</em> dan <em>Record</em> dalam sebuah tabel.</li>
+                <li>Buat database baru bernama <em>PerpustakaanKu.accdb</em> dan jelajahi seluruh tab pada Ribbon.</li>
+            </ol>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-btn prev">← Kembali ke Daftar Isi</a>
+            <a href="pertemuan02.html" class="nav-btn next">Lanjut ke Pertemuan 2 →</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 — Panduan Praktikum Database | Microsoft Access & Neon.Tech</p>
+        </footer>
+    </div>
+</body>
+</html>
