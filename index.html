@@ -244,6 +244,33 @@
             color: #f291ab;
         }
 
+        .meeting-item.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+            pointer-events: none;
+            position: relative;
+        }
+
+        .meeting-item.locked .meeting-number,
+        .meeting-item.locked .badge {
+            filter: grayscale(1);
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .locked-note {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
         footer {
             text-align: center;
             margin-top: 60px;
@@ -288,7 +315,7 @@
         <div class="section-title">Microsoft Access (Pertemuan 1–5)</div>
         <ul class="meeting-list">
             <li>
-                <a href="pertemuan01.html" class="meeting-item">
+                <a href="pertemuan01.html" class="meeting-item" data-session="1">
                     <div class="meeting-number">1</div>
                     <div class="meeting-content">
                         <h3>Pengenalan Database & Microsoft Access</h3>
@@ -298,7 +325,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan02.html" class="meeting-item">
+                <a href="pertemuan02.html" class="meeting-item" data-session="2">
                     <div class="meeting-number">2</div>
                     <div class="meeting-content">
                         <h3>Membuat Database dan Tabel</h3>
@@ -308,7 +335,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan03.html" class="meeting-item">
+                <a href="pertemuan03.html" class="meeting-item" data-session="3">
                     <div class="meeting-number">3</div>
                     <div class="meeting-content">
                         <h3>Relationship dan Impor Data</h3>
@@ -318,7 +345,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan04.html" class="meeting-item">
+                <a href="pertemuan04.html" class="meeting-item" data-session="4">
                     <div class="meeting-number">4</div>
                     <div class="meeting-content">
                         <h3>Query Dasar (SELECT, WHERE, ORDER BY)</h3>
@@ -328,7 +355,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan05.html" class="meeting-item">
+                <a href="pertemuan05.html" class="meeting-item" data-session="5">
                     <div class="meeting-number">5</div>
                     <div class="meeting-content">
                         <h3>Query Grouping, Formula, dan Parameter</h3>
@@ -343,7 +370,7 @@
         <div class="section-title">Remote Database — Neon.Tech (Pertemuan 6–8)</div>
         <ul class="meeting-list">
             <li>
-                <a href="pertemuan06.html" class="meeting-item">
+                <a href="pertemuan06.html" class="meeting-item" data-session="6">
                     <div class="meeting-number neon">6</div>
                     <div class="meeting-content">
                         <h3>Pengenalan Remote Database (Neon.Tech)</h3>
@@ -353,7 +380,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan07.html" class="meeting-item">
+                <a href="pertemuan07.html" class="meeting-item" data-session="7">
                     <div class="meeting-number neon">7</div>
                     <div class="meeting-content">
                         <h3>Query dalam Remote Database — DDL & DML</h3>
@@ -363,7 +390,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan08.html" class="meeting-item">
+                <a href="pertemuan08.html" class="meeting-item" data-session="8">
                     <div class="meeting-number neon">8</div>
                     <div class="meeting-content">
                         <h3>Query dalam Remote Database — JOIN & Subquery</h3>
@@ -378,7 +405,7 @@
         <div class="section-title">Integrasi & Aplikasi (Pertemuan 9–13)</div>
         <ul class="meeting-list">
             <li>
-                <a href="pertemuan09.html" class="meeting-item">
+                <a href="pertemuan09.html" class="meeting-item" data-session="9">
                     <div class="meeting-number hybrid">9</div>
                     <div class="meeting-content">
                         <h3>Koneksi Microsoft Access ke Remote Database</h3>
@@ -388,7 +415,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan10.html" class="meeting-item">
+                <a href="pertemuan10.html" class="meeting-item" data-session="10">
                     <div class="meeting-number">10</div>
                     <div class="meeting-content">
                         <h3>Membuat Form dalam Access</h3>
@@ -398,7 +425,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan11.html" class="meeting-item">
+                <a href="pertemuan11.html" class="meeting-item" data-session="11">
                     <div class="meeting-number">11</div>
                     <div class="meeting-content">
                         <h3>SubForm dalam Access</h3>
@@ -408,7 +435,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan12.html" class="meeting-item">
+                <a href="pertemuan12.html" class="meeting-item" data-session="12">
                     <div class="meeting-number">12</div>
                     <div class="meeting-content">
                         <h3>Report dalam Access</h3>
@@ -418,7 +445,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan13.html" class="meeting-item">
+                <a href="pertemuan13.html" class="meeting-item" data-session="13">
                     <div class="meeting-number">13</div>
                     <div class="meeting-content">
                         <h3>Advanced Report dalam Access</h3>
@@ -433,7 +460,7 @@
         <div class="section-title">Evaluasi (Pertemuan 14–15)</div>
         <ul class="meeting-list">
             <li>
-                <a href="pertemuan14.html" class="meeting-item">
+                <a href="pertemuan14.html" class="meeting-item" data-session="14">
                     <div class="meeting-number exam">14</div>
                     <div class="meeting-content">
                         <h3>Persiapan Ujian</h3>
@@ -443,7 +470,7 @@
                 </a>
             </li>
             <li>
-                <a href="pertemuan15.html" class="meeting-item">
+                <a href="pertemuan15.html" class="meeting-item" data-session="15">
                     <div class="meeting-number exam">15</div>
                     <div class="meeting-content">
                         <h3>Ujian Praktik</h3>
@@ -458,5 +485,38 @@
             <p>&copy; 2026 — Panduan Praktikum Database | Microsoft Access & Neon.Tech</p>
         </footer>
     </div>
+
+    <script>
+        // =====================================================
+        // PENGATURAN PERTEMUAN YANG SUDAH DIBUKA
+        // Tambahkan nomor pertemuan ke dalam array di bawah ini
+        // untuk membukanya. Pertemuan yang tidak ada di dalam
+        // array akan otomatis terkunci (tidak bisa diklik).
+        // Contoh: [1, 2, 3] artinya pertemuan 1-3 sudah terbuka.
+        // =====================================================
+        const unlockedSessions = [1];
+
+        document.querySelectorAll('.meeting-item[data-session]').forEach((item) => {
+            const session = parseInt(item.dataset.session, 10);
+            if (!unlockedSessions.includes(session)) {
+                item.classList.add('locked');
+                item.setAttribute('aria-disabled', 'true');
+                item.setAttribute('tabindex', '-1');
+                item.removeAttribute('href');
+
+                item.addEventListener('click', (e) => e.preventDefault());
+
+                const lockIcon = document.createElement('span');
+                lockIcon.className = 'lock-icon';
+                lockIcon.textContent = '🔒';
+                item.appendChild(lockIcon);
+
+                const note = document.createElement('p');
+                note.className = 'locked-note';
+                note.textContent = 'Belum dibuka';
+                item.querySelector('.meeting-content').appendChild(note);
+            }
+        });
+    </script>
 </body>
 </html>
