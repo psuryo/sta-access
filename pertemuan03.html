@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pertemuan 3 — Relationship dan Impor Data</title>
+    <style>
+        :root {
+            --bg-1: #0f0c29;
+            --bg-2: #302b63;
+            --bg-3: #24243e;
+            --accent: #7f5af0;
+            --accent-2: #2cb67d;
+            --text-light: #fffffe;
+            --text-muted: #94a1b2;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 50px 20px 40px;
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        body::before {
+            background: #7f5af0;
+            top: -150px;
+            left: -150px;
+        }
+
+        body::after {
+            background: #2cb67d;
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text-light);
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-2);
+            background: rgba(44, 182, 125, 0.12);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #fff, #b8b8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header p.subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 640px;
+        }
+
+        .meta-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+        }
+
+        .meta-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(127, 90, 240, 0.25);
+            flex-shrink: 0;
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            margin: 18px 0 8px;
+            color: #d8d4ff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .card ul, .card ol {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 10px 0 10px 20px;
+        }
+
+        .card li {
+            margin-bottom: 8px;
+        }
+
+        .card li strong {
+            color: var(--text-light);
+        }
+
+        .objek-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .objek-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .objek-item .icon {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .objek-item h4 {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .objek-item p {
+            font-size: 0.82rem;
+            margin: 0;
+        }
+
+        .info-box {
+            background: rgba(127, 90, 240, 0.1);
+            border: 1px solid rgba(127, 90, 240, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .info-box strong {
+            color: #b8a4ff;
+        }
+
+        .tip-box {
+            background: rgba(44, 182, 125, 0.1);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .tip-box strong {
+            color: #7fe0b4;
+        }
+
+        .warning-box {
+            background: rgba(242, 95, 76, 0.1);
+            border: 1px solid rgba(242, 95, 76, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .warning-box strong {
+            color: #f291ab;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        th {
+            color: var(--text-light);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .summary-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding-left: 26px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .summary-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-2);
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-btn.prev {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #7f5af0, #5e3bd4);
+            color: #fff;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Beranda</a>
+            <span>/</span>
+            <span>Pertemuan 3</span>
+        </div>
+
+        <header>
+            <span class="eyebrow">Microsoft Access · Sesi 03</span>
+            <h1>Relationship dan Impor Data</h1>
+            <p class="subtitle">Membuat relasi antar tabel, memahami integritas referensial, serta mengimpor data dari file Excel dan CSV ke dalam Access.</p>
+            <div class="meta-bar">
+                <span class="meta-chip">⏱️ 90 menit</span>
+                <span class="meta-chip">🎯 Praktik Inti</span>
+                <span class="meta-chip">📦 Microsoft Access</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>Tujuan Pembelajaran</h2>
+            <ul>
+                <li>Memahami konsep <strong>relationship</strong> (relasi) antar tabel dalam database.</li>
+                <li>Mengenal jenis-jenis relasi: <strong>One-to-Many</strong>, <strong>One-to-One</strong>, dan <strong>Many-to-Many</strong>.</li>
+                <li>Mampu membuat relasi antar tabel menggunakan jendela <strong>Relationships</strong>.</li>
+                <li>Memahami dan menerapkan <strong>Referential Integrity</strong> (integritas referensial).</li>
+                <li>Mampu mengimpor data dari file <strong>Excel</strong> dan <strong>CSV</strong> ke dalam tabel Access.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>1. Mengapa Relationship Dibutuhkan?</h2>
+            <p>
+                Dalam praktik pertemuan sebelumnya, kita membuat tabel <em>Anggota</em> dan <em>Buku</em> secara
+                terpisah. Namun kedua tabel tersebut saling berkaitan: satu anggota bisa meminjam banyak buku. Agar
+                data tidak diketik berulang-ulang dan tetap konsisten, tabel-tabel tersebut perlu dihubungkan
+                melalui sebuah <strong>relationship</strong>.
+            </p>
+            <p>
+                Relasi dibangun dengan menghubungkan <strong>Primary Key</strong> pada satu tabel dengan
+                <strong>Foreign Key</strong> pada tabel lain. Foreign Key adalah field pada suatu tabel yang nilainya
+                mengacu pada Primary Key di tabel lain.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>2. Jenis-Jenis Relationship</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jenis Relasi</th>
+                        <th>Penjelasan</th>
+                        <th>Contoh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>One-to-Many</td>
+                        <td>Satu record pada tabel pertama dapat berelasi dengan banyak record pada tabel kedua</td>
+                        <td>Satu Anggota dapat meminjam banyak Buku</td>
+                    </tr>
+                    <tr>
+                        <td>One-to-One</td>
+                        <td>Satu record pada tabel pertama hanya berelasi dengan satu record pada tabel kedua</td>
+                        <td>Satu Karyawan memiliki satu Kartu Identitas</td>
+                    </tr>
+                    <tr>
+                        <td>Many-to-Many</td>
+                        <td>Banyak record pada tabel pertama berelasi dengan banyak record pada tabel kedua (memerlukan tabel penghubung)</td>
+                        <td>Banyak Siswa mengikuti banyak Mata Pelajaran</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="info-box">
+                <strong>Perlu diketahui:</strong> Relasi <em>One-to-Many</em> adalah jenis relasi yang paling sering
+                digunakan dalam desain database sehari-hari.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Membuat Relationship di Access</h2>
+            <ol>
+                <li>Pastikan tabel <em>Anggota</em> dan <em>Buku</em> sudah memiliki Primary Key masing-masing.</li>
+                <li>Tambahkan field <strong>IDAnggota</strong> pada tabel <em>Buku</em> sebagai Foreign Key untuk mencatat siapa yang meminjam.</li>
+                <li>Buka tab <strong>Database Tools</strong>, lalu klik tombol <strong>Relationships</strong>.</li>
+                <li>Pada jendela <strong>Show Table</strong>, pilih kedua tabel yang akan direlasikan, klik <strong>Add</strong>, lalu <strong>Close</strong>.</li>
+                <li>Klik dan seret (drag) field <strong>IDAnggota</strong> dari tabel <em>Anggota</em> ke field <strong>IDAnggota</strong> pada tabel <em>Buku</em>.</li>
+                <li>Pada kotak dialog <strong>Edit Relationships</strong> yang muncul, aktifkan opsi <strong>Enforce Referential Integrity</strong>.</li>
+                <li>Klik <strong>Create</strong> untuk membentuk relasi. Garis penghubung akan muncul di antara kedua tabel.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>4. Referential Integrity (Integritas Referensial)</h2>
+            <p>
+                <strong>Referential Integrity</strong> adalah aturan yang menjaga agar data pada Foreign Key selalu
+                konsisten dengan data pada Primary Key tabel induknya. Dengan aturan ini, Access akan mencegah:
+            </p>
+            <ul>
+                <li>Penginputan nilai Foreign Key yang tidak ada pada tabel induk (misalnya IDAnggota yang belum terdaftar).</li>
+                <li>Penghapusan record induk yang masih memiliki data terkait pada tabel anak, kecuali fitur <em>Cascade Delete</em> diaktifkan.</li>
+                <li>Perubahan nilai Primary Key induk tanpa memperbarui Foreign Key terkait, kecuali fitur <em>Cascade Update</em> diaktifkan.</li>
+            </ul>
+            <div class="warning-box">
+                <strong>Perhatian:</strong> Jika muncul pesan error saat mengaktifkan Referential Integrity, biasanya
+                disebabkan tipe data kedua field yang direlasikan tidak sama, atau sudah ada data pada tabel anak
+                yang tidak sesuai dengan tabel induk.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. Impor Data dari Excel dan CSV</h2>
+            <p>
+                Access memungkinkan data yang sudah ada di file Excel atau CSV diimpor langsung ke dalam tabel,
+                tanpa perlu mengetik ulang satu per satu.
+            </p>
+            <h3>Impor dari Excel (.xlsx)</h3>
+            <ol>
+                <li>Buka tab <strong>External Data</strong>, lalu klik <strong>New Data Source → From File → Excel</strong>.</li>
+                <li>Klik <strong>Browse</strong> untuk memilih file Excel yang akan diimpor.</li>
+                <li>Pilih opsi <strong>Import the source data into a new table in the current database</strong>, lalu klik <strong>OK</strong>.</li>
+                <li>Pilih worksheet yang berisi data, lalu klik <strong>Next</strong>.</li>
+                <li>Centang <strong>First Row Contains Column Headings</strong> jika baris pertama berisi nama kolom.</li>
+                <li>Sesuaikan tipe data tiap kolom jika diperlukan, lalu klik <strong>Next</strong> hingga selesai.</li>
+                <li>Tentukan Primary Key (atau biarkan Access menambahkannya otomatis), lalu klik <strong>Finish</strong>.</li>
+            </ol>
+            <h3>Impor dari CSV</h3>
+            <ol>
+                <li>Buka tab <strong>External Data</strong>, lalu klik <strong>New Data Source → From File → Text File</strong>.</li>
+                <li>Pilih file CSV yang akan diimpor dan ikuti wizard yang serupa dengan impor Excel.</li>
+                <li>Pastikan pemisah kolom (delimiter) yang terdeteksi sudah sesuai, misalnya koma atau titik koma.</li>
+            </ol>
+            <div class="tip-box">
+                <strong>Tips:</strong> Sebelum mengimpor, pastikan format data pada Excel/CSV sudah rapi — tanpa
+                baris kosong, gabungan sel (merge cell), atau format tanggal yang tidak konsisten — agar proses
+                impor berjalan lancar tanpa error.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>6. Langkah Praktik</h2>
+            <ol>
+                <li>Buka kembali database <em>PerpustakaanKu.accdb</em> dari pertemuan sebelumnya.</li>
+                <li>Tambahkan field <strong>IDAnggota</strong> (Number) pada tabel <em>Buku</em> sebagai Foreign Key.</li>
+                <li>Buat relasi <strong>One-to-Many</strong> antara tabel <em>Anggota</em> dan <em>Buku</em> melalui jendela Relationships, dengan Referential Integrity aktif.</li>
+                <li>Siapkan file Excel berisi minimal 5 data buku tambahan, lalu impor ke dalam tabel <em>Buku</em>.</li>
+                <li>Periksa hasil relasi dengan membuka tabel <em>Anggota</em> dan melihat tanda (+) di sebelah kiri setiap record.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>Ringkasan</h2>
+            <ul class="summary-list">
+                <li>Relationship menghubungkan Primary Key suatu tabel dengan Foreign Key pada tabel lain.</li>
+                <li>Tiga jenis relasi utama adalah One-to-Many, One-to-One, dan Many-to-Many.</li>
+                <li>Referential Integrity menjaga konsistensi data antar tabel yang berelasi.</li>
+                <li>Data dari Excel maupun CSV dapat diimpor langsung ke dalam tabel Access melalui menu External Data.</li>
+                <li>Format data sumber sebaiknya dirapikan terlebih dahulu sebelum proses impor dilakukan.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Latihan Mandiri</h2>
+            <ol>
+                <li>Jelaskan perbedaan antara relasi One-to-Many dan Many-to-Many beserta contohnya masing-masing.</li>
+                <li>Apa yang terjadi jika kita mencoba menghapus record induk yang masih memiliki data anak, sementara Referential Integrity aktif tanpa Cascade Delete?</li>
+                <li>Buat relasi antara tabel <em>Peminjaman</em> (dari latihan pertemuan 2) dengan tabel <em>Anggota</em> dan <em>Buku</em>, lalu jelaskan foreign key apa saja yang dibutuhkan.</li>
+            </ol>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="pertemuan02.html" class="nav-btn prev">← Pertemuan 2</a>
+            <a href="pertemuan04.html" class="nav-btn next">Lanjut ke Pertemuan 4 →</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 — Panduan Praktikum Database | Microsoft Access & Neon.Tech</p>
+        </footer>
+    </div>
+</body>
+</html>
