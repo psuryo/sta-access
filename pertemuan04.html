@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pertemuan 4 — Query Dasar (SELECT, WHERE, ORDER BY)</title>
+    <style>
+        :root {
+            --bg-1: #0f0c29;
+            --bg-2: #302b63;
+            --bg-3: #24243e;
+            --accent: #7f5af0;
+            --accent-2: #2cb67d;
+            --text-light: #fffffe;
+            --text-muted: #94a1b2;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 50px 20px 40px;
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        body::before {
+            background: #7f5af0;
+            top: -150px;
+            left: -150px;
+        }
+
+        body::after {
+            background: #2cb67d;
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text-light);
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-2);
+            background: rgba(44, 182, 125, 0.12);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #fff, #b8b8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header p.subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 640px;
+        }
+
+        .meta-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+        }
+
+        .meta-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(127, 90, 240, 0.25);
+            flex-shrink: 0;
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            margin: 18px 0 8px;
+            color: #d8d4ff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .card ul, .card ol {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 10px 0 10px 20px;
+        }
+
+        .card li {
+            margin-bottom: 8px;
+        }
+
+        .card li strong {
+            color: var(--text-light);
+        }
+
+        .objek-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .objek-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .objek-item .icon {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .objek-item h4 {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .objek-item p {
+            font-size: 0.82rem;
+            margin: 0;
+        }
+
+        .info-box {
+            background: rgba(127, 90, 240, 0.1);
+            border: 1px solid rgba(127, 90, 240, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .info-box strong {
+            color: #b8a4ff;
+        }
+
+        .tip-box {
+            background: rgba(44, 182, 125, 0.1);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .tip-box strong {
+            color: #7fe0b4;
+        }
+
+        .warning-box {
+            background: rgba(242, 95, 76, 0.1);
+            border: 1px solid rgba(242, 95, 76, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .warning-box strong {
+            color: #f291ab;
+        }
+
+        .code-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin: 14px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #a4e8c4;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        th {
+            color: var(--text-light);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .summary-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding-left: 26px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .summary-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-2);
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-btn.prev {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #7f5af0, #5e3bd4);
+            color: #fff;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Beranda</a>
+            <span>/</span>
+            <span>Pertemuan 4</span>
+        </div>
+
+        <header>
+            <span class="eyebrow">Microsoft Access · Sesi 04</span>
+            <h1>Query Dasar (SELECT, WHERE, ORDER BY)</h1>
+            <p class="subtitle">Membuat query select untuk menampilkan data, memfilter data dengan kriteria WHERE, mengurutkan hasil dengan ORDER BY, dan bekerja dengan Query Design View.</p>
+            <div class="meta-bar">
+                <span class="meta-chip">⏱️ 90 menit</span>
+                <span class="meta-chip">🎯 Praktik Inti</span>
+                <span class="meta-chip">📦 Microsoft Access</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>Tujuan Pembelajaran</h2>
+            <ul>
+                <li>Memahami konsep dan fungsi <strong>query</strong> dalam pengolahan data.</li>
+                <li>Mampu membuat <strong>Select Query</strong> melalui Query Design View maupun SQL View.</li>
+                <li>Mampu memfilter data menggunakan berbagai <strong>kriteria (Criteria/WHERE)</strong>.</li>
+                <li>Mampu mengurutkan hasil query dengan <strong>Sort (ORDER BY)</strong>.</li>
+                <li>Mengenal dasar-dasar sintaks <strong>SQL</strong> yang dihasilkan oleh query Access.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>1. Apa itu Query?</h2>
+            <p>
+                <strong>Query</strong> adalah objek Access yang digunakan untuk menampilkan, menyaring, atau
+                mengolah data dari satu tabel atau lebih sesuai kebutuhan. Berbeda dengan tabel yang menyimpan data
+                mentah, query menampilkan data secara dinamis berdasarkan kriteria yang ditentukan, tanpa mengubah
+                data aslinya.
+            </p>
+            <p>
+                Jenis query yang paling umum digunakan adalah <strong>Select Query</strong>, yaitu query yang
+                digunakan untuk menampilkan data dari tabel berdasarkan field dan kondisi tertentu.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>2. Membuat Select Query melalui Design View</h2>
+            <ol>
+                <li>Buka tab <strong>Create</strong>, lalu klik <strong>Query Design</strong>.</li>
+                <li>Pada jendela <strong>Show Table</strong>, pilih tabel yang akan digunakan, misalnya <em>Buku</em>, klik <strong>Add</strong>, lalu <strong>Close</strong>.</li>
+                <li>Klik dua kali pada field yang ingin ditampilkan (misalnya JudulBuku, Pengarang, Stok) sehingga masuk ke grid query di bagian bawah.</li>
+                <li>Klik tombol <strong>Run</strong> (ikon tanda seru merah) pada Ribbon untuk menjalankan query.</li>
+                <li>Simpan query dengan menekan <strong>Ctrl+S</strong>, beri nama misalnya <em>qryDaftarBuku</em>.</li>
+            </ol>
+            <div class="info-box">
+                <strong>Perlu diketahui:</strong> Hasil query dapat ditampilkan dalam Datasheet View seperti tabel
+                biasa, namun datanya selalu mengikuti kondisi terbaru dari tabel sumber setiap kali query dijalankan.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Memfilter Data dengan Criteria (WHERE)</h2>
+            <p>
+                Baris <strong>Criteria</strong> pada grid Query Design digunakan untuk menyaring data yang
+                ditampilkan, setara dengan klausa <code>WHERE</code> pada SQL.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Contoh Kriteria</th>
+                        <th>Penjelasan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>"Fiksi"</td>
+                        <td>Menampilkan data dengan nilai teks persis sama dengan "Fiksi"</td>
+                    </tr>
+                    <tr>
+                        <td>&gt;10</td>
+                        <td>Menampilkan data numerik yang nilainya lebih besar dari 10</td>
+                    </tr>
+                    <tr>
+                        <td>Between 1 And 5</td>
+                        <td>Menampilkan data dengan nilai di antara 1 sampai 5</td>
+                    </tr>
+                    <tr>
+                        <td>Like "A*"</td>
+                        <td>Menampilkan data teks yang diawali huruf A</td>
+                    </tr>
+                    <tr>
+                        <td>Is Null</td>
+                        <td>Menampilkan data yang field-nya masih kosong</td>
+                    </tr>
+                    <tr>
+                        <td>&gt;=#01/01/2026#</td>
+                        <td>Menampilkan data tanggal mulai 1 Januari 2026</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="tip-box">
+                <strong>Tips:</strong> Kriteria yang ditulis pada baris yang sama akan digabung dengan logika
+                <strong>AND</strong>, sedangkan kriteria yang ditulis pada baris <em>Or</em> di bawahnya akan
+                digabung dengan logika <strong>OR</strong>.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Mengurutkan Data dengan Sort (ORDER BY)</h2>
+            <p>
+                Baris <strong>Sort</strong> pada grid Query Design digunakan untuk mengatur urutan tampilan data,
+                setara dengan klausa <code>ORDER BY</code> pada SQL.
+            </p>
+            <ol>
+                <li>Klik pada baris <strong>Sort</strong> di bawah kolom field yang ingin diurutkan.</li>
+                <li>Pilih <strong>Ascending</strong> untuk urutan dari kecil ke besar (A-Z), atau <strong>Descending</strong> untuk urutan sebaliknya (Z-A).</li>
+                <li>Jika lebih dari satu kolom diberi Sort, urutan pengurutan mengikuti posisi kolom dari kiri ke kanan.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>5. Melihat Sintaks SQL</h2>
+            <p>
+                Setiap query yang dibuat lewat Design View sebenarnya diterjemahkan Access menjadi perintah SQL di
+                belakang layar. Untuk melihatnya, klik kanan pada tab query lalu pilih <strong>SQL View</strong>.
+            </p>
+            <div class="code-box">SELECT JudulBuku, Pengarang, Stok
+FROM Buku
+WHERE Stok &gt; 0
+ORDER BY JudulBuku ASC;</div>
+            <p>
+                Struktur dasar tersebut terdiri dari <code>SELECT</code> (field yang ditampilkan),
+                <code>FROM</code> (tabel sumber), <code>WHERE</code> (kriteria filter), dan
+                <code>ORDER BY</code> (urutan hasil).
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>6. Langkah Praktik</h2>
+            <ol>
+                <li>Buka kembali database <em>PerpustakaanKu.accdb</em>.</li>
+                <li>Buat query <strong>qryBukuTersedia</strong> yang menampilkan JudulBuku, Pengarang, dan Stok dari tabel <em>Buku</em>, dengan kriteria Stok lebih besar dari 0.</li>
+                <li>Urutkan hasil query tersebut berdasarkan JudulBuku secara Ascending.</li>
+                <li>Buat query kedua bernama <strong>qryAnggotaBaru</strong> yang menampilkan Nama dan TanggalDaftar dari tabel <em>Anggota</em>, dengan kriteria TanggalDaftar pada tahun 2026.</li>
+                <li>Buka SQL View pada kedua query tersebut dan amati sintaks SQL yang terbentuk.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>Ringkasan</h2>
+            <ul class="summary-list">
+                <li>Query digunakan untuk menampilkan dan menyaring data tanpa mengubah data pada tabel sumber.</li>
+                <li>Select Query dapat dibuat melalui Query Design View dengan memilih tabel dan field yang dibutuhkan.</li>
+                <li>Baris Criteria berfungsi sebagai filter data, setara dengan klausa WHERE pada SQL.</li>
+                <li>Baris Sort berfungsi mengurutkan hasil query, setara dengan klausa ORDER BY pada SQL.</li>
+                <li>Setiap query yang dibuat lewat Design View dapat dilihat sintaks SQL-nya melalui SQL View.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Latihan Mandiri</h2>
+            <ol>
+                <li>Jelaskan perbedaan fungsi antara baris Criteria dan baris Sort pada Query Design View.</li>
+                <li>Tuliskan kriteria yang tepat untuk menampilkan buku dengan judul yang mengandung kata "Data".</li>
+                <li>Buat query yang menampilkan anggota yang mendaftar antara 1 Januari 2026 sampai 30 Juni 2026, diurutkan berdasarkan TanggalDaftar secara Descending.</li>
+            </ol>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="pertemuan03.html" class="nav-btn prev">← Pertemuan 3</a>
+            <a href="pertemuan05.html" class="nav-btn next">Lanjut ke Pertemuan 5 →</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 — Panduan Praktikum Database | Microsoft Access & Neon.Tech</p>
+        </footer>
+    </div>
+</body>
+</html>
