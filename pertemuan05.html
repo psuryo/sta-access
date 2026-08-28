@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pertemuan 5 — Query Grouping, Formula, dan Parameter</title>
+    <style>
+        :root {
+            --bg-1: #0f0c29;
+            --bg-2: #302b63;
+            --bg-3: #24243e;
+            --accent: #7f5af0;
+            --accent-2: #2cb67d;
+            --text-light: #fffffe;
+            --text-muted: #94a1b2;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 50px 20px 40px;
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        body::before {
+            background: #7f5af0;
+            top: -150px;
+            left: -150px;
+        }
+
+        body::after {
+            background: #2cb67d;
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text-light);
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-2);
+            background: rgba(44, 182, 125, 0.12);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #fff, #b8b8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header p.subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 640px;
+        }
+
+        .meta-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+        }
+
+        .meta-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(127, 90, 240, 0.25);
+            flex-shrink: 0;
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            margin: 18px 0 8px;
+            color: #d8d4ff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .card ul, .card ol {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 10px 0 10px 20px;
+        }
+
+        .card li {
+            margin-bottom: 8px;
+        }
+
+        .card li strong {
+            color: var(--text-light);
+        }
+
+        .objek-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .objek-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .objek-item .icon {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .objek-item h4 {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .objek-item p {
+            font-size: 0.82rem;
+            margin: 0;
+        }
+
+        .info-box {
+            background: rgba(127, 90, 240, 0.1);
+            border: 1px solid rgba(127, 90, 240, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .info-box strong {
+            color: #b8a4ff;
+        }
+
+        .tip-box {
+            background: rgba(44, 182, 125, 0.1);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .tip-box strong {
+            color: #7fe0b4;
+        }
+
+        .warning-box {
+            background: rgba(242, 95, 76, 0.1);
+            border: 1px solid rgba(242, 95, 76, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .warning-box strong {
+            color: #f291ab;
+        }
+
+        .code-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin: 14px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #a4e8c4;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        th {
+            color: var(--text-light);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .summary-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding-left: 26px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .summary-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-2);
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-btn.prev {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #7f5af0, #5e3bd4);
+            color: #fff;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Beranda</a>
+            <span>/</span>
+            <span>Pertemuan 5</span>
+        </div>
+
+        <header>
+            <span class="eyebrow">Microsoft Access · Sesi 05</span>
+            <h1>Query Grouping, Formula, dan Parameter</h1>
+            <p class="subtitle">Menggunakan fungsi agregat (SUM, COUNT, AVG), mengelompokkan data dengan GROUP BY, membuat calculated field, dan membangun parameter query.</p>
+            <div class="meta-bar">
+                <span class="meta-chip">⏱️ 90 menit</span>
+                <span class="meta-chip">🎯 Praktik Inti</span>
+                <span class="meta-chip">📦 Microsoft Access</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>Tujuan Pembelajaran</h2>
+            <ul>
+                <li>Memahami dan menggunakan <strong>fungsi agregat</strong> (SUM, COUNT, AVG, MIN, MAX) dalam query.</li>
+                <li>Mampu mengelompokkan data menggunakan baris <strong>Total (GROUP BY)</strong>.</li>
+                <li>Mampu membuat <strong>calculated field</strong> untuk menghasilkan kolom hasil perhitungan baru.</li>
+                <li>Mampu membangun <strong>parameter query</strong> yang meminta input dari pengguna saat query dijalankan.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>1. Fungsi Agregat dalam Query</h2>
+            <p>
+                Fungsi agregat digunakan untuk melakukan perhitungan ringkas terhadap sekumpulan data, misalnya
+                menjumlahkan, menghitung jumlah record, atau mencari rata-rata. Fungsi ini diaktifkan melalui baris
+                <strong>Total</strong> pada Query Design View (klik tombol <strong>Totals (Σ)</strong> di Ribbon
+                tab Design).
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fungsi</th>
+                        <th>Kegunaan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sum</td>
+                        <td>Menjumlahkan seluruh nilai numerik pada suatu field</td>
+                    </tr>
+                    <tr>
+                        <td>Count</td>
+                        <td>Menghitung jumlah record</td>
+                    </tr>
+                    <tr>
+                        <td>Avg</td>
+                        <td>Menghitung nilai rata-rata</td>
+                    </tr>
+                    <tr>
+                        <td>Min</td>
+                        <td>Mencari nilai terkecil</td>
+                    </tr>
+                    <tr>
+                        <td>Max</td>
+                        <td>Mencari nilai terbesar</td>
+                    </tr>
+                    <tr>
+                        <td>Group By</td>
+                        <td>Mengelompokkan data berdasarkan nilai field tertentu sebelum dihitung</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>2. Mengelompokkan Data dengan Group By</h2>
+            <p>
+                <strong>Group By</strong> digunakan untuk mengelompokkan data berdasarkan nilai yang sama pada satu
+                atau lebih field, sebelum fungsi agregat diterapkan pada field lain.
+            </p>
+            <ol>
+                <li>Buat query baru dari tabel <em>Buku</em> melalui Query Design View.</li>
+                <li>Masukkan field <strong>Pengarang</strong> dan <strong>Stok</strong> ke dalam grid.</li>
+                <li>Klik tombol <strong>Totals</strong> pada Ribbon sehingga muncul baris <em>Total</em> pada grid.</li>
+                <li>Pada kolom Pengarang, biarkan nilai baris Total tetap <strong>Group By</strong>.</li>
+                <li>Pada kolom Stok, ubah nilai baris Total menjadi <strong>Sum</strong> untuk menjumlahkan stok per pengarang.</li>
+                <li>Jalankan query untuk melihat total stok buku dikelompokkan per pengarang.</li>
+            </ol>
+            <div class="code-box">SELECT Pengarang, Sum(Stok) AS TotalStok
+FROM Buku
+GROUP BY Pengarang;</div>
+            <div class="info-box">
+                <strong>Perlu diketahui:</strong> Setiap field yang tidak diberi fungsi agregat harus tetap berstatus
+                <em>Group By</em>, karena field tersebut menjadi dasar pengelompokan data.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Calculated Field</h2>
+            <p>
+                <strong>Calculated field</strong> adalah kolom baru pada query yang nilainya dihasilkan dari rumus
+                atau perhitungan terhadap field lain, tanpa perlu disimpan sebagai field baru di tabel.
+            </p>
+            <ol>
+                <li>Pada Query Design View, klik kolom kosong pada grid.</li>
+                <li>Ketikkan rumus dengan format <code>NamaKolomBaru: Ekspresi</code>.</li>
+                <li>Jalankan query untuk melihat hasil perhitungan pada kolom baru tersebut.</li>
+            </ol>
+            <div class="code-box">TotalHarga: [HargaSatuan] * [Jumlah]</div>
+            <p>
+                Contoh di atas akan membuat kolom baru bernama <em>TotalHarga</em> yang nilainya merupakan hasil
+                perkalian antara field <em>HargaSatuan</em> dan <em>Jumlah</em>.
+            </p>
+            <div class="tip-box">
+                <strong>Tips:</strong> Nama field yang mengandung spasi harus diapit tanda kurung siku, misalnya
+                <code>[Nama Lengkap]</code>, agar tidak dianggap dua kata terpisah oleh Access.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Parameter Query</h2>
+            <p>
+                <strong>Parameter query</strong> adalah query yang menampilkan kotak dialog untuk meminta input dari
+                pengguna setiap kali dijalankan, sehingga kriteria filter tidak perlu ditulis tetap (statis) pada
+                query.
+            </p>
+            <ol>
+                <li>Buat query baru dan masukkan field yang dibutuhkan, misalnya Pengarang pada tabel <em>Buku</em>.</li>
+                <li>Pada baris <strong>Criteria</strong> di kolom Pengarang, ketikkan teks dalam tanda kurung siku, misalnya <code>[Masukkan Nama Pengarang:]</code>.</li>
+                <li>Jalankan query. Access akan menampilkan kotak dialog yang meminta pengguna mengetikkan nama pengarang.</li>
+                <li>Hasil query akan menyesuaikan dengan nilai yang diinput oleh pengguna.</li>
+            </ol>
+            <div class="code-box">SELECT JudulBuku, Pengarang, Stok
+FROM Buku
+WHERE Pengarang = [Masukkan Nama Pengarang:];</div>
+            <div class="warning-box">
+                <strong>Perhatian:</strong> Teks di dalam tanda kurung siku pada parameter query tidak boleh sama
+                persis dengan nama field yang ada di tabel, karena Access akan menganggapnya sebagai referensi
+                field, bukan sebagai parameter.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. Langkah Praktik</h2>
+            <ol>
+                <li>Buka kembali database <em>PerpustakaanKu.accdb</em>.</li>
+                <li>Buat query <strong>qryTotalStokPerPengarang</strong> yang menampilkan total Stok buku dikelompokkan per Pengarang menggunakan Group By dan Sum.</li>
+                <li>Buat query <strong>qryJumlahAnggota</strong> yang menghitung jumlah total anggota menggunakan fungsi Count.</li>
+                <li>Buat calculated field pada query buku, misalnya <code>StatusStok: IIf([Stok]&gt;0,"Tersedia","Habis")</code>.</li>
+                <li>Buat parameter query <strong>qryCariBuku</strong> yang meminta pengguna memasukkan judul buku yang dicari.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>Ringkasan</h2>
+            <ul class="summary-list">
+                <li>Fungsi agregat seperti Sum, Count, dan Avg digunakan untuk meringkas data numerik dalam query.</li>
+                <li>Group By mengelompokkan data berdasarkan nilai field tertentu sebelum fungsi agregat diterapkan.</li>
+                <li>Calculated field menghasilkan kolom baru dari rumus terhadap field lain tanpa mengubah tabel sumber.</li>
+                <li>Parameter query menampilkan kotak dialog input, membuat query lebih fleksibel digunakan berulang kali.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Latihan Mandiri</h2>
+            <ol>
+                <li>Jelaskan perbedaan fungsi Count dan Sum beserta contoh penggunaannya.</li>
+                <li>Buat calculated field untuk menghitung selisih hari antara TanggalPinjam dan TanggalKembali pada tabel Peminjaman.</li>
+                <li>Buat parameter query yang menampilkan daftar anggota berdasarkan input rentang TanggalDaftar dari pengguna.</li>
+            </ol>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="pertemuan04.html" class="nav-btn prev">← Pertemuan 4</a>
+            <a href="pertemuan06.html" class="nav-btn next">Lanjut ke Pertemuan 6 →</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 — Panduan Praktikum Database | Microsoft Access & Neon.Tech</p>
+        </footer>
+    </div>
+</body>
+</html>
