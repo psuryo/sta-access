@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pertemuan 6 — Pengenalan Remote Database (Neon.Tech)</title>
+    <style>
+        :root {
+            --bg-1: #0f0c29;
+            --bg-2: #302b63;
+            --bg-3: #24243e;
+            --accent: #7f5af0;
+            --accent-2: #2cb67d;
+            --neon: #00b4d8;
+            --text-light: #fffffe;
+            --text-muted: #94a1b2;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 50px 20px 40px;
+            color: var(--text-light);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        body::before {
+            background: #00b4d8;
+            top: -150px;
+            left: -150px;
+        }
+
+        body::after {
+            background: #2cb67d;
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text-light);
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #6fd8f2;
+            background: rgba(0, 180, 216, 0.12);
+            border: 1px solid rgba(0, 180, 216, 0.35);
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #fff, #b8b8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header p.subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 640px;
+        }
+
+        .meta-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+        }
+
+        .meta-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon);
+            box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.25);
+            flex-shrink: 0;
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            margin: 18px 0 8px;
+            color: #d8d4ff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .card ul, .card ol {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 10px 0 10px 20px;
+        }
+
+        .card li {
+            margin-bottom: 8px;
+        }
+
+        .card li strong {
+            color: var(--text-light);
+        }
+
+        .objek-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .objek-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .objek-item .icon {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .objek-item h4 {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .objek-item p {
+            font-size: 0.82rem;
+            margin: 0;
+        }
+
+        .info-box {
+            background: rgba(0, 180, 216, 0.1);
+            border: 1px solid rgba(0, 180, 216, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .info-box strong {
+            color: #6fd8f2;
+        }
+
+        .tip-box {
+            background: rgba(44, 182, 125, 0.1);
+            border: 1px solid rgba(44, 182, 125, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .tip-box strong {
+            color: #7fe0b4;
+        }
+
+        .warning-box {
+            background: rgba(242, 95, 76, 0.1);
+            border: 1px solid rgba(242, 95, 76, 0.35);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .warning-box strong {
+            color: #f291ab;
+        }
+
+        .code-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin: 14px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #a4e8c4;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        th {
+            color: var(--text-light);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .summary-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding-left: 26px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .summary-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-2);
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-btn.prev {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            color: #fff;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Beranda</a>
+            <span>/</span>
+            <span>Pertemuan 6</span>
+        </div>
+
+        <header>
+            <span class="eyebrow">Neon.Tech · Sesi 06</span>
+            <h1>Pengenalan Remote Database (Neon.Tech)</h1>
+            <p class="subtitle">Memahami konsep cloud database, membuat akun Neon.Tech, serta membuat project dan database PostgreSQL pertama secara online.</p>
+            <div class="meta-bar">
+                <span class="meta-chip">⏱️ 90 menit</span>
+                <span class="meta-chip">🎯 Praktik Inti</span>
+                <span class="meta-chip">☁️ Neon.Tech</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>Tujuan Pembelajaran</h2>
+            <ul>
+                <li>Memahami konsep <strong>cloud database</strong> dan perbedaannya dengan database lokal seperti Access.</li>
+                <li>Mengenal <strong>PostgreSQL</strong> sebagai sistem manajemen basis data relasional.</li>
+                <li>Mampu membuat akun dan <strong>project</strong> baru di layanan <strong>Neon.Tech</strong>.</li>
+                <li>Mampu membuat <strong>database PostgreSQL</strong> pertama melalui Neon Console.</li>
+                <li>Mengenal antarmuka <strong>SQL Editor</strong> pada Neon Console.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>1. Dari Database Lokal ke Cloud Database</h2>
+            <p>
+                Pada pertemuan-pertemuan sebelumnya, kita bekerja dengan Microsoft Access — sebuah database
+                <strong>lokal</strong> yang tersimpan sebagai file <em>.accdb</em> di komputer. Database lokal
+                memiliki keterbatasan: hanya bisa diakses dari komputer tempat file tersimpan, dan sulit digunakan
+                bersama-sama secara langsung oleh banyak pengguna dari lokasi berbeda.
+            </p>
+            <p>
+                <strong>Cloud database</strong> (remote database) adalah database yang disimpan dan dikelola di
+                server milik penyedia layanan, sehingga dapat diakses dari mana saja selama terhubung internet, dan
+                mendukung banyak pengguna maupun aplikasi mengakses data yang sama secara bersamaan.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspek</th>
+                        <th>Database Lokal (Access)</th>
+                        <th>Cloud Database (Neon.Tech)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Lokasi penyimpanan</td>
+                        <td>File di komputer/laptop pengguna</td>
+                        <td>Server milik penyedia cloud</td>
+                    </tr>
+                    <tr>
+                        <td>Akses</td>
+                        <td>Hanya dari komputer tempat file berada</td>
+                        <td>Dari mana saja via internet</td>
+                    </tr>
+                    <tr>
+                        <td>Multi-user</td>
+                        <td>Terbatas dan rawan konflik data</td>
+                        <td>Didesain untuk banyak pengguna sekaligus</td>
+                    </tr>
+                    <tr>
+                        <td>Bahasa database</td>
+                        <td>Access SQL (mirip standar SQL)</td>
+                        <td>PostgreSQL (standar SQL industri)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>2. Mengenal PostgreSQL</h2>
+            <p>
+                <strong>PostgreSQL</strong> adalah sistem manajemen basis data relasional (RDBMS) open-source yang
+                banyak digunakan oleh aplikasi web dan mobile skala kecil hingga besar. Konsep tabel, Primary Key,
+                relasi, dan query yang sudah dipelajari di Access berlaku juga pada PostgreSQL — bedanya, PostgreSQL
+                diakses menggunakan bahasa <strong>SQL standar</strong> secara langsung, bukan melalui antarmuka
+                grafis seperti Design View di Access.
+            </p>
+            <div class="info-box">
+                <strong>Perlu diketahui:</strong> <strong>Neon.Tech</strong> adalah salah satu penyedia layanan
+                <em>PostgreSQL as a Service</em> yang menyediakan database cloud siap pakai, termasuk paket gratis
+                (free tier) yang cukup untuk keperluan belajar dan proyek kecil.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Membuat Akun Neon.Tech</h2>
+            <ol>
+                <li>Buka browser dan kunjungi situs resmi <strong>neon.tech</strong>.</li>
+                <li>Klik tombol <strong>Sign Up</strong>, lalu daftar menggunakan akun Google, GitHub, atau email.</li>
+                <li>Verifikasi akun sesuai instruksi yang dikirimkan (jika diminta).</li>
+                <li>Setelah berhasil masuk, pengguna akan diarahkan ke <strong>Neon Console</strong>, yaitu dashboard utama untuk mengelola project dan database.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>4. Membuat Project dan Database</h2>
+            <p>
+                Di Neon.Tech, setiap <strong>project</strong> secara otomatis menyertakan satu database PostgreSQL
+                pertama. Satu akun dapat memiliki beberapa project sekaligus.
+            </p>
+            <ol>
+                <li>Pada Neon Console, klik tombol <strong>Create a project</strong> (atau <strong>New Project</strong>).</li>
+                <li>Beri nama project, misalnya <em>praktikum-database</em>.</li>
+                <li>Pilih <strong>Postgres version</strong> (gunakan versi default/terbaru jika tidak yakin) dan <strong>Region</strong> server terdekat.</li>
+                <li>Klik <strong>Create Project</strong> untuk membuat project beserta database default-nya.</li>
+                <li>Setelah selesai, Neon akan menampilkan halaman <strong>Connection Details</strong> berisi informasi koneksi database (host, nama database, username, password).</li>
+            </ol>
+            <div class="warning-box">
+                <strong>Perhatian:</strong> Informasi <em>connection string</em> dan password database bersifat
+                rahasia. Jangan membagikannya secara publik, misalnya di repository GitHub yang bersifat publik.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. Mengenal SQL Editor pada Neon Console</h2>
+            <p>
+                Neon Console menyediakan <strong>SQL Editor</strong> berbasis web yang memungkinkan pengguna
+                menjalankan perintah SQL langsung dari browser, tanpa perlu menginstal aplikasi tambahan.
+            </p>
+            <ol>
+                <li>Pada Neon Console, buka menu <strong>SQL Editor</strong> di sidebar kiri.</li>
+                <li>Ketikkan perintah SQL sederhana pada area editor, misalnya untuk menampilkan versi PostgreSQL yang digunakan.</li>
+                <li>Klik tombol <strong>Run</strong> untuk menjalankan perintah.</li>
+                <li>Hasil query akan ditampilkan pada panel di bagian bawah editor.</li>
+            </ol>
+            <div class="code-box">SELECT version();</div>
+            <div class="tip-box">
+                <strong>Tips:</strong> SQL Editor pada Neon Console sangat berguna untuk uji coba perintah SQL secara
+                cepat sebelum diterapkan pada aplikasi, tanpa perlu membuka aplikasi database client tambahan.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>6. Langkah Praktik</h2>
+            <ol>
+                <li>Buat akun baru di <strong>neon.tech</strong> menggunakan email atau akun GitHub/Google.</li>
+                <li>Buat project baru dengan nama <em>praktikum-[nama_mahasiswa]</em>.</li>
+                <li>Catat informasi <strong>Connection Details</strong> (host, database, username) pada project tersebut.</li>
+                <li>Buka <strong>SQL Editor</strong> dan jalankan perintah <code>SELECT version();</code>, lalu amati hasilnya.</li>
+                <li>Ambil tangkapan layar (screenshot) hasil project dan SQL Editor sebagai bukti praktik.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>Ringkasan</h2>
+            <ul class="summary-list">
+                <li>Cloud database memungkinkan data diakses dari mana saja dan digunakan bersama oleh banyak pengguna.</li>
+                <li>Neon.Tech adalah layanan PostgreSQL as a Service dengan paket gratis untuk belajar dan proyek kecil.</li>
+                <li>Setiap project di Neon.Tech secara otomatis menyertakan satu database PostgreSQL.</li>
+                <li>Connection Details berisi informasi rahasia yang digunakan untuk menghubungkan aplikasi ke database.</li>
+                <li>SQL Editor pada Neon Console memungkinkan perintah SQL dijalankan langsung dari browser.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Latihan Mandiri</h2>
+            <ol>
+                <li>Jelaskan dua keuntungan utama menggunakan cloud database dibandingkan database lokal seperti Access.</li>
+                <li>Mengapa connection string dan password database tidak boleh dibagikan secara publik?</li>
+                <li>Buat sebuah project baru di Neon.Tech dan jalankan perintah <code>SELECT current_database();</code> pada SQL Editor, lalu jelaskan hasil yang muncul.</li>
+            </ol>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="pertemuan05.html" class="nav-btn prev">← Pertemuan 5</a>
+            <a href="pertemuan07.html" class="nav-btn next">Lanjut ke Pertemuan 7 →</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 — Panduan Praktikum Database | Microsoft Access & Neon.Tech</p>
+        </footer>
+    </div>
+</body>
+</html>
