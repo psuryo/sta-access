@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pertemuan 7 — Query Remote Database: DDL &amp; DML</title>
+<style>
+    :root {
+        --bg-1: #0f0c29;
+        --bg-2: #302b63;
+        --bg-3: #24243e;
+        --accent: #7f5af0;
+        --accent-2: #2cb67d;
+        --neon: #00b4d8;
+        --neon-2: #0077b6;
+        --text-light: #fffffe;
+        --text-muted: #94a1b2;
+        --card-bg: rgba(255, 255, 255, 0.06);
+        --card-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 50px 20px 40px;
+        color: var(--text-light);
+        position: relative;
+        overflow-x: hidden;
+        line-height: 1.6;
+    }
+
+    body::before, body::after {
+        content: "";
+        position: fixed;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.35;
+        z-index: -1;
+    }
+    body::before { background: var(--neon); top: -150px; left: -150px; }
+    body::after { background: var(--accent-2); bottom: -150px; right: -150px; }
+
+    .container { max-width: 880px; margin: 0 auto; position: relative; z-index: 1; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        margin-bottom: 24px;
+        transition: color 0.2s ease;
+    }
+    .back-link:hover { color: var(--text-light); }
+
+    header { margin-bottom: 30px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #6fd8f2;
+        background: rgba(0, 180, 216, 0.12);
+        border: 1px solid rgba(0, 180, 216, 0.35);
+        padding: 6px 16px;
+        border-radius: 20px;
+        margin-bottom: 18px;
+    }
+
+    header h1 {
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+        margin-bottom: 12px;
+        background: linear-gradient(90deg, #fff, #b8e9ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    header p.lead {
+        font-size: 1rem;
+        color: var(--text-muted);
+        max-width: 640px;
+    }
+
+    .meta-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 26px 0 36px;
+    }
+
+    .meta-chip {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 10px 16px;
+        backdrop-filter: blur(8px);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .meta-chip strong { color: var(--text-light); font-weight: 600; }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 28px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 18px;
+        color: var(--text-light);
+    }
+
+    .section-title .num {
+        background: linear-gradient(135deg, var(--neon), var(--neon-2));
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .obj-list, .kw-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .obj-list li {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+    }
+    .obj-list li::before {
+        content: "✓";
+        color: var(--accent-2);
+        font-weight: 700;
+        flex-shrink: 0;
+        background: rgba(44, 182, 125, 0.15);
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-top: 1px;
+    }
+
+    p.body-text { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 14px; }
+    p.body-text:last-child { margin-bottom: 0; }
+    p.body-text strong { color: var(--text-light); }
+
+    .concept-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+    }
+    .concept-item {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .concept-item h4 {
+        font-size: 0.85rem;
+        color: #6fd8f2;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .concept-item p { font-size: 0.82rem; color: var(--text-muted); }
+
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+        display: flex;
+        gap: 16px;
+        padding: 18px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .step:last-child { border-bottom: none; padding-bottom: 0; }
+    .step:first-child { padding-top: 0; }
+
+    .step-num {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--neon), var(--neon-2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #fff;
+    }
+    .step-body { flex: 1; min-width: 0; }
+    .step-body h4 { font-size: 0.92rem; color: var(--text-light); margin-bottom: 4px; }
+    .step-body p { font-size: 0.85rem; color: var(--text-muted); }
+
+    .tip-box {
+        margin-top: 18px;
+        background: rgba(127, 90, 240, 0.1);
+        border: 1px solid rgba(127, 90, 240, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #cabfff;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .warn-box {
+        margin-top: 18px;
+        background: rgba(242, 95, 76, 0.1);
+        border: 1px solid rgba(242, 95, 76, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #ffb3a7;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    code, .code-block { font-family: 'Consolas', 'Courier New', monospace; }
+    .code-block {
+        background: #0a0818;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 0.8rem;
+        color: #7fe0b4;
+        margin-top: 10px;
+        overflow-x: auto;
+        white-space: pre;
+    }
+    code {
+        background: rgba(255,255,255,0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.82rem;
+        color: #a4f0d0;
+    }
+
+    .ddl-dml-compare {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    .compare-card {
+        border-radius: 14px;
+        padding: 18px;
+    }
+    .compare-card.ddl {
+        background: rgba(127, 90, 240, 0.1);
+        border: 1px solid rgba(127, 90, 240, 0.3);
+    }
+    .compare-card.dml {
+        background: rgba(0, 180, 216, 0.1);
+        border: 1px solid rgba(0, 180, 216, 0.3);
+    }
+    .compare-card h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    .compare-card.ddl h4 { color: #cabfff; }
+    .compare-card.dml h4 { color: #6fd8f2; }
+    .compare-card p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }
+    .compare-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .compare-card li { font-size: 0.8rem; color: var(--text-muted); }
+    .compare-card code { font-size: 0.78rem; }
+
+    .task-card {
+        background: rgba(44, 182, 125, 0.08);
+        border: 1px solid rgba(44, 182, 125, 0.3);
+        border-radius: 14px;
+        padding: 20px;
+    }
+    .task-card h4 { font-size: 0.95rem; color: #7fe0b4; margin-bottom: 10px; }
+    .task-card ol { padding-left: 20px; color: var(--text-muted); font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; }
+
+    .kw-list { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+    .kw-list li {
+        background: rgba(0, 180, 216, 0.12);
+        border: 1px solid rgba(0, 180, 216, 0.3);
+        color: #6fd8f2;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+    }
+
+    .nav-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 36px;
+        flex-wrap: wrap;
+    }
+    .nav-btn {
+        flex: 1;
+        min-width: 200px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 16px 20px;
+        text-decoration: none;
+        color: var(--text-light);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-btn:hover { transform: translateY(-3px); border-color: rgba(0, 180, 216, 0.5); }
+    .nav-btn.next { text-align: right; align-items: flex-end; }
+    .nav-btn .nav-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .nav-btn .nav-title { font-size: 0.88rem; font-weight: 600; }
+
+    footer.page-footer {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 22px;
+        border-top: 1px solid var(--card-border);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+        header h1 { font-size: 1.5rem; }
+        .card { padding: 20px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <a href="index.html" class="back-link">&larr; Kembali ke Daftar Pertemuan</a>
+
+    <header>
+        <span class="eyebrow">🔵 Pertemuan 7 · Neon.Tech</span>
+        <h1>Query dalam Remote Database — DDL &amp; DML</h1>
+        <p class="lead">Mempraktikkan perintah dasar SQL pada PostgreSQL di Neon.Tech: membuat struktur tabel (DDL) dengan <code>CREATE TABLE</code>, serta mengelola isi data (DML) dengan <code>INSERT</code>, <code>UPDATE</code>, dan <code>DELETE</code> melalui SQL Editor.</p>
+    </header>
+
+    <div class="meta-bar">
+        <div class="meta-chip">📚 <strong>Kelompok:</strong>&nbsp;Remote Database — Neon.Tech</div>
+        <div class="meta-chip">🎯 <strong>Sub-CPMK:</strong>&nbsp;CPMK2</div>
+        <div class="meta-chip">🧭 <strong>Indikator:</strong>&nbsp;IK 1.3, IK 3.1</div>
+        <div class="meta-chip">⏱️ <strong>Durasi:</strong>&nbsp;100 menit</div>
+    </div>
+
+    <!-- Tujuan Pembelajaran -->
+    <div class="card">
+        <div class="section-title"><span class="num">1</span> Tujuan Pembelajaran</div>
+        <ul class="obj-list">
+            <li>Mahasiswa mampu membedakan perintah DDL (Data Definition Language) dan DML (Data Manipulation Language).</li>
+            <li>Mahasiswa mampu membuat tabel baru pada database Neon.Tech menggunakan perintah <code>CREATE TABLE</code>.</li>
+            <li>Mahasiswa mampu menambah, mengubah, dan menghapus data menggunakan perintah <code>INSERT</code>, <code>UPDATE</code>, dan <code>DELETE</code>.</li>
+            <li>Mahasiswa mampu menjalankan dan memeriksa hasil query pada SQL Editor Neon.Tech sebagai alat analisis data administrasi perkantoran.</li>
+        </ul>
+    </div>
+
+    <!-- Konsep Dasar -->
+    <div class="card">
+        <div class="section-title"><span class="num">2</span> Konsep Dasar DDL &amp; DML</div>
+        <p class="body-text">Dalam bahasa SQL, perintah dikelompokkan berdasarkan fungsinya. Dua kelompok yang dipelajari pada pertemuan ini adalah <strong>DDL</strong> untuk mendefinisikan struktur basis data, dan <strong>DML</strong> untuk mengelola isi (data) di dalam struktur tersebut.</p>
+        <div class="ddl-dml-compare">
+            <div class="compare-card ddl">
+                <h4>🏗️ DDL — Data Definition Language</h4>
+                <p>Digunakan untuk membuat, mengubah, atau menghapus struktur objek basis data (tabel, kolom, tipe data).</p>
+                <ul>
+                    <li><code>CREATE TABLE</code> — membuat tabel baru</li>
+                    <li><code>ALTER TABLE</code> — mengubah struktur tabel</li>
+                    <li><code>DROP TABLE</code> — menghapus tabel</li>
+                </ul>
+            </div>
+            <div class="compare-card dml">
+                <h4>✏️ DML — Data Manipulation Language</h4>
+                <p>Digunakan untuk mengelola isi data di dalam tabel yang sudah ada.</p>
+                <ul>
+                    <li><code>INSERT</code> — menambah data baru</li>
+                    <li><code>UPDATE</code> — mengubah data yang ada</li>
+                    <li><code>DELETE</code> — menghapus data</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Praktik DDL -->
+    <div class="card">
+        <div class="section-title"><span class="num">3</span> Praktik: Membuat Tabel dengan CREATE TABLE</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Buka SQL Editor</h4>
+                    <p>Masuk ke project Neon.Tech yang sudah dibuat pada Pertemuan 6, lalu klik menu <strong>SQL Editor</strong> pada panel kiri Neon Console.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Tulis perintah CREATE TABLE</h4>
+                    <p>Buat tabel <code>pegawai</code> untuk menyimpan data administrasi perkantoran sederhana:</p>
+                    <div class="code-block">CREATE TABLE pegawai (
+    id SERIAL PRIMARY KEY,
+    nama VARCHAR(100) NOT NULL,
+    jabatan VARCHAR(50),
+    tanggal_masuk DATE,
+    gaji NUMERIC(12,2)
+);</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Jalankan query</h4>
+                    <p>Klik tombol <strong>Run</strong> (atau tekan <code>Ctrl+Enter</code>) untuk mengeksekusi perintah. Notifikasi "Success" menandakan tabel berhasil dibuat.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <h4>Periksa tabel yang terbentuk</h4>
+                    <p>Buka menu <strong>Tables</strong> pada Neon Console untuk memastikan tabel <code>pegawai</code> beserta kolom-kolomnya sudah tersimpan.</p>
+                </div>
+            </div>
+        </div>
+        <div class="tip-box">💡 <span>Kolom bertipe <code>SERIAL</code> akan otomatis membuat nilai id yang unik dan bertambah (auto-increment) setiap kali data baru ditambahkan.</span></div>
+    </div>
+
+    <!-- Praktik DML -->
+    <div class="card">
+        <div class="section-title"><span class="num">4</span> Praktik: Mengelola Data dengan INSERT, UPDATE, DELETE</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Menambah data — INSERT</h4>
+                    <p>Tambahkan beberapa data pegawai ke dalam tabel:</p>
+                    <div class="code-block">INSERT INTO pegawai (nama, jabatan, tanggal_masuk, gaji)
+VALUES
+('Siti Aminah', 'Staf Administrasi', '2022-03-01', 4500000),
+('Budi Santoso', 'Sekretaris', '2021-07-15', 5200000);</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Menampilkan data — SELECT</h4>
+                    <p>Periksa data yang sudah masuk dengan perintah dasar:</p>
+                    <div class="code-block">SELECT * FROM pegawai;</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Mengubah data — UPDATE</h4>
+                    <p>Perbarui gaji pegawai tertentu, misalnya kenaikan gaji untuk Budi Santoso:</p>
+                    <div class="code-block">UPDATE pegawai
+SET gaji = 5700000
+WHERE nama = 'Budi Santoso';</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <h4>Menghapus data — DELETE</h4>
+                    <p>Hapus satu baris data pegawai yang sudah tidak aktif:</p>
+                    <div class="code-block">DELETE FROM pegawai
+WHERE nama = 'Siti Aminah';</div>
+                </div>
+            </div>
+        </div>
+        <div class="warn-box">⚠️ <span>Selalu sertakan klausa <code>WHERE</code> pada <code>UPDATE</code> dan <code>DELETE</code>. Tanpa <code>WHERE</code>, perintah akan mengubah atau menghapus <strong>seluruh baris</strong> pada tabel.</span></div>
+    </div>
+
+    <!-- Tugas Praktik -->
+    <div class="card">
+        <div class="section-title"><span class="num">5</span> Latihan / Tugas Praktik</div>
+        <div class="task-card">
+            <h4>📝 Tugas Individu</h4>
+            <ol>
+                <li>Buat tabel baru bernama <code>surat_masuk</code> dengan kolom: id, nomor_surat, pengirim, tanggal_terima, dan perihal.</li>
+                <li>Tambahkan minimal 5 data surat masuk menggunakan perintah <code>INSERT</code>.</li>
+                <li>Ubah data salah satu surat menggunakan perintah <code>UPDATE</code> (misalnya memperbaiki perihal surat).</li>
+                <li>Hapus satu data surat menggunakan perintah <code>DELETE</code> beserta klausa <code>WHERE</code> yang tepat.</li>
+                <li>Ambil tangkapan layar hasil setiap query beserta pesan sukses dari SQL Editor, lalu kumpulkan sesuai format yang ditentukan dosen.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Rangkuman -->
+    <div class="card">
+        <div class="section-title"><span class="num">6</span> Rangkuman &amp; Kata Kunci</div>
+        <p class="body-text">Pertemuan ini melatih mahasiswa menyusun struktur tabel (DDL) serta mengelola isi data (DML) pada basis data PostgreSQL di Neon.Tech melalui SQL Editor. Kemampuan ini menjadi bekal untuk pertemuan berikutnya, yaitu query lanjutan menggunakan JOIN dan subquery untuk menganalisis data dari beberapa tabel sekaligus.</p>
+        <ul class="kw-list" style="margin-top: 14px;">
+            <li>DDL</li>
+            <li>DML</li>
+            <li>CREATE TABLE</li>
+            <li>INSERT</li>
+            <li>UPDATE</li>
+            <li>DELETE</li>
+            <li>SQL Editor</li>
+        </ul>
+    </div>
+
+    <div class="nav-footer">
+        <a href="pertemuan06.html" class="nav-btn prev">
+            <span class="nav-label">← Sebelumnya</span>
+            <span class="nav-title">Pertemuan 6 — Pengenalan Remote Database (Neon.Tech)</span>
+        </a>
+        <a href="pertemuan08.html" class="nav-btn next">
+            <span class="nav-label">Selanjutnya →</span>
+            <span class="nav-title">Pertemuan 8 — Query Remote Database: JOIN & Subquery</span>
+        </a>
+    </div>
+
+    <footer class="page-footer">
+        <p>© 2026 — Panduan Praktikum Database | Microsoft Access &amp; Neon.Tech</p>
+    </footer>
+
+</div>
+</body>
+</html>
