@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pertemuan 8 — Query Remote Database: JOIN &amp; Subquery</title>
+<style>
+    :root {
+        --bg-1: #0f0c29;
+        --bg-2: #302b63;
+        --bg-3: #24243e;
+        --accent: #7f5af0;
+        --accent-2: #2cb67d;
+        --neon: #00b4d8;
+        --neon-2: #0077b6;
+        --text-light: #fffffe;
+        --text-muted: #94a1b2;
+        --card-bg: rgba(255, 255, 255, 0.06);
+        --card-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 50px 20px 40px;
+        color: var(--text-light);
+        position: relative;
+        overflow-x: hidden;
+        line-height: 1.6;
+    }
+
+    body::before, body::after {
+        content: "";
+        position: fixed;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.35;
+        z-index: -1;
+    }
+    body::before { background: var(--neon); top: -150px; left: -150px; }
+    body::after { background: var(--accent-2); bottom: -150px; right: -150px; }
+
+    .container { max-width: 880px; margin: 0 auto; position: relative; z-index: 1; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        margin-bottom: 24px;
+        transition: color 0.2s ease;
+    }
+    .back-link:hover { color: var(--text-light); }
+
+    header { margin-bottom: 30px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #6fd8f2;
+        background: rgba(0, 180, 216, 0.12);
+        border: 1px solid rgba(0, 180, 216, 0.35);
+        padding: 6px 16px;
+        border-radius: 20px;
+        margin-bottom: 18px;
+    }
+
+    header h1 {
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+        margin-bottom: 12px;
+        background: linear-gradient(90deg, #fff, #b8e9ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    header p.lead {
+        font-size: 1rem;
+        color: var(--text-muted);
+        max-width: 640px;
+    }
+
+    .meta-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 26px 0 36px;
+    }
+
+    .meta-chip {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 10px 16px;
+        backdrop-filter: blur(8px);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .meta-chip strong { color: var(--text-light); font-weight: 600; }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 28px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 18px;
+        color: var(--text-light);
+    }
+
+    .section-title .num {
+        background: linear-gradient(135deg, var(--neon), var(--neon-2));
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .obj-list, .kw-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .obj-list li {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+    }
+    .obj-list li > span { flex: 1; min-width: 0; }
+    .obj-list li::before {
+        content: "✓";
+        color: var(--accent-2);
+        font-weight: 700;
+        flex-shrink: 0;
+        background: rgba(44, 182, 125, 0.15);
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-top: 1px;
+    }
+
+    p.body-text { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 14px; }
+    p.body-text:last-child { margin-bottom: 0; }
+    p.body-text strong { color: var(--text-light); }
+
+    .concept-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+    }
+    .concept-item {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .concept-item h4 {
+        font-size: 0.85rem;
+        color: #6fd8f2;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .concept-item p { font-size: 0.82rem; color: var(--text-muted); }
+
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+        display: flex;
+        gap: 16px;
+        padding: 18px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .step:last-child { border-bottom: none; padding-bottom: 0; }
+    .step:first-child { padding-top: 0; }
+
+    .step-num {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--neon), var(--neon-2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #fff;
+    }
+    .step-body { flex: 1; min-width: 0; }
+    .step-body h4 { font-size: 0.92rem; color: var(--text-light); margin-bottom: 4px; }
+    .step-body p { font-size: 0.85rem; color: var(--text-muted); }
+
+    .tip-box {
+        margin-top: 18px;
+        background: rgba(127, 90, 240, 0.1);
+        border: 1px solid rgba(127, 90, 240, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #cabfff;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .warn-box {
+        margin-top: 18px;
+        background: rgba(242, 95, 76, 0.1);
+        border: 1px solid rgba(242, 95, 76, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #ffb3a7;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    code, .code-block { font-family: 'Consolas', 'Courier New', monospace; }
+    .code-block {
+        background: #0a0818;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 0.8rem;
+        color: #7fe0b4;
+        margin-top: 10px;
+        overflow-x: auto;
+        white-space: pre;
+    }
+    code {
+        background: rgba(255,255,255,0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.82rem;
+        color: #a4f0d0;
+    }
+
+    .ddl-dml-compare {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    .compare-card {
+        border-radius: 14px;
+        padding: 18px;
+    }
+    .compare-card.ddl {
+        background: rgba(127, 90, 240, 0.1);
+        border: 1px solid rgba(127, 90, 240, 0.3);
+    }
+    .compare-card.dml {
+        background: rgba(0, 180, 216, 0.1);
+        border: 1px solid rgba(0, 180, 216, 0.3);
+    }
+    .compare-card h4 { font-size: 0.95rem; margin-bottom: 8px; }
+    .compare-card.ddl h4 { color: #cabfff; }
+    .compare-card.dml h4 { color: #6fd8f2; }
+    .compare-card p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }
+    .compare-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .compare-card li { font-size: 0.8rem; color: var(--text-muted); }
+    .compare-card code { font-size: 0.78rem; }
+
+    .task-card {
+        background: rgba(44, 182, 125, 0.08);
+        border: 1px solid rgba(44, 182, 125, 0.3);
+        border-radius: 14px;
+        padding: 20px;
+    }
+    .task-card h4 { font-size: 0.95rem; color: #7fe0b4; margin-bottom: 10px; }
+    .task-card ol { padding-left: 20px; color: var(--text-muted); font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; }
+
+    .kw-list { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+    .kw-list li {
+        background: rgba(0, 180, 216, 0.12);
+        border: 1px solid rgba(0, 180, 216, 0.3);
+        color: #6fd8f2;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+    }
+
+    .nav-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 36px;
+        flex-wrap: wrap;
+    }
+    .nav-btn {
+        flex: 1;
+        min-width: 200px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 16px 20px;
+        text-decoration: none;
+        color: var(--text-light);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-btn:hover { transform: translateY(-3px); border-color: rgba(0, 180, 216, 0.5); }
+    .nav-btn.next { text-align: right; align-items: flex-end; }
+    .nav-btn .nav-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .nav-btn .nav-title { font-size: 0.88rem; font-weight: 600; }
+
+    footer.page-footer {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 22px;
+        border-top: 1px solid var(--card-border);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+        header h1 { font-size: 1.5rem; }
+        .card { padding: 20px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <a href="index.html" class="back-link">&larr; Kembali ke Daftar Pertemuan</a>
+
+    <header>
+        <span class="eyebrow">🔵 Pertemuan 8 · Neon.Tech</span>
+        <h1>Query Remote Database — JOIN &amp; Subquery</h1>
+        <p class="lead">Mempelajari cara menggabungkan data dari beberapa tabel menggunakan <code>INNER JOIN</code> dan <code>LEFT JOIN</code>, menyusun subquery untuk kebutuhan analisis bertingkat, serta membuat view sebagai query tersimpan pada PostgreSQL di Neon.Tech.</p>
+    </header>
+
+    <div class="meta-bar">
+        <div class="meta-chip">📚 <strong>Kelompok:</strong>&nbsp;Remote Database — Neon.Tech</div>
+        <div class="meta-chip">🎯 <strong>Sub-CPMK:</strong>&nbsp;CPMK2</div>
+        <div class="meta-chip">🧭 <strong>Indikator:</strong>&nbsp;IK 1.3, IK 3.1</div>
+        <div class="meta-chip">⏱️ <strong>Durasi:</strong>&nbsp;100 menit</div>
+    </div>
+
+    <!-- Tujuan Pembelajaran -->
+    <div class="card">
+        <div class="section-title"><span class="num">1</span> Tujuan Pembelajaran</div>
+        <ul class="obj-list">
+            <li><span>Mahasiswa mampu menjelaskan konsep penggabungan data antar tabel menggunakan <code>JOIN</code>.</span></li>
+            <li><span>Mahasiswa mampu membedakan dan menerapkan <code>INNER JOIN</code> serta <code>LEFT JOIN</code> sesuai kebutuhan data.</span></li>
+            <li><span>Mahasiswa mampu menyusun subquery untuk mengambil data berdasarkan hasil query lain.</span></li>
+            <li><span>Mahasiswa mampu membuat <code>VIEW</code> sebagai query tersimpan untuk mendukung analisis data dan pengambilan keputusan administratif.</span></li>
+        </ul>
+    </div>
+
+    <!-- Konsep Dasar -->
+    <div class="card">
+        <div class="section-title"><span class="num">2</span> Konsep Dasar JOIN &amp; Subquery</div>
+        <p class="body-text">Pada basis data relasional, data administrasi sering tersebar di beberapa tabel yang saling berhubungan (misalnya tabel <code>pegawai</code> dan tabel <code>divisi</code>). Untuk menampilkan data gabungan dari beberapa tabel tersebut, digunakan perintah <strong>JOIN</strong>. Selain itu, <strong>subquery</strong> (query di dalam query) digunakan untuk mengambil data secara bertahap, dan <strong>view</strong> digunakan untuk menyimpan query yang sering dipakai agar dapat dipanggil kembali seperti tabel biasa.</p>
+        <div class="concept-grid">
+            <div class="concept-item">
+                <h4>🔗 INNER JOIN</h4>
+                <p>Menampilkan hanya baris data yang memiliki pasangan cocok di kedua tabel.</p>
+            </div>
+            <div class="concept-item">
+                <h4>↩️ LEFT JOIN</h4>
+                <p>Menampilkan seluruh baris dari tabel kiri, meskipun tidak ada pasangan cocok di tabel kanan.</p>
+            </div>
+            <div class="concept-item">
+                <h4>🧩 Subquery</h4>
+                <p>Query yang diletakkan di dalam query lain, digunakan sebagai filter atau sumber data sementara.</p>
+            </div>
+            <div class="concept-item">
+                <h4>🗂️ View</h4>
+                <p>Query tersimpan yang berperilaku seperti tabel virtual, memudahkan analisis data berulang.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Praktik JOIN -->
+    <div class="card">
+        <div class="section-title"><span class="num">3</span> Praktik: INNER JOIN &amp; LEFT JOIN</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Siapkan tabel pendukung</h4>
+                    <p>Buat tabel <code>divisi</code> pada SQL Editor Neon.Tech, lalu hubungkan dengan tabel <code>pegawai</code> yang telah dibuat pada Pertemuan 7:</p>
+                    <div class="code-block">CREATE TABLE divisi (
+    id SERIAL PRIMARY KEY,
+    nama_divisi VARCHAR(50)
+);
+
+ALTER TABLE pegawai ADD COLUMN divisi_id INT REFERENCES divisi(id);</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Isi data divisi &amp; perbarui data pegawai</h4>
+                    <p>Tambahkan data divisi, lalu kaitkan setiap pegawai dengan divisinya menggunakan <code>UPDATE</code>.</p>
+                    <div class="code-block">INSERT INTO divisi (nama_divisi)
+VALUES ('Kesekretariatan'), ('Keuangan'), ('Umum');
+
+UPDATE pegawai SET divisi_id = 1 WHERE nama = 'Budi Santoso';</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Gabungkan data — INNER JOIN</h4>
+                    <p>Tampilkan nama pegawai beserta nama divisinya, hanya untuk pegawai yang sudah memiliki divisi:</p>
+                    <div class="code-block">SELECT pegawai.nama, pegawai.jabatan, divisi.nama_divisi
+FROM pegawai
+INNER JOIN divisi ON pegawai.divisi_id = divisi.id;</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <h4>Tampilkan seluruh pegawai — LEFT JOIN</h4>
+                    <p>Tampilkan seluruh pegawai meskipun belum memiliki divisi (nilai divisi akan kosong/<code>NULL</code>):</p>
+                    <div class="code-block">SELECT pegawai.nama, pegawai.jabatan, divisi.nama_divisi
+FROM pegawai
+LEFT JOIN divisi ON pegawai.divisi_id = divisi.id;</div>
+                </div>
+            </div>
+        </div>
+        <div class="tip-box">💡 <span>Gunakan <code>INNER JOIN</code> saat hanya ingin menampilkan data yang lengkap/berpasangan, dan <code>LEFT JOIN</code> saat ingin tetap menampilkan seluruh data dari tabel utama walau sebagian relasinya belum terisi.</span></div>
+    </div>
+
+    <!-- Praktik Subquery & View -->
+    <div class="card">
+        <div class="section-title"><span class="num">4</span> Praktik: Subquery &amp; View</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Menyusun subquery</h4>
+                    <p>Tampilkan pegawai dengan gaji di atas rata-rata seluruh pegawai menggunakan subquery pada klausa <code>WHERE</code>:</p>
+                    <div class="code-block">SELECT nama, gaji
+FROM pegawai
+WHERE gaji > (SELECT AVG(gaji) FROM pegawai);</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Subquery pada klausa FROM</h4>
+                    <p>Hitung jumlah pegawai per divisi menggunakan subquery sebagai tabel sementara:</p>
+                    <div class="code-block">SELECT nama_divisi, jumlah_pegawai
+FROM (
+    SELECT divisi.nama_divisi, COUNT(pegawai.id) AS jumlah_pegawai
+    FROM divisi
+    LEFT JOIN pegawai ON pegawai.divisi_id = divisi.id
+    GROUP BY divisi.nama_divisi
+) AS rekap_divisi;</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Membuat VIEW</h4>
+                    <p>Simpan query gabungan pegawai &amp; divisi sebagai view agar dapat dipanggil kembali tanpa menulis ulang query:</p>
+                    <div class="code-block">CREATE VIEW data_pegawai_lengkap AS
+SELECT pegawai.nama, pegawai.jabatan, divisi.nama_divisi, pegawai.gaji
+FROM pegawai
+LEFT JOIN divisi ON pegawai.divisi_id = divisi.id;</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <h4>Menggunakan VIEW</h4>
+                    <p>Panggil view seperti memanggil tabel biasa untuk kebutuhan analisis data:</p>
+                    <div class="code-block">SELECT * FROM data_pegawai_lengkap
+ORDER BY gaji DESC;</div>
+                </div>
+            </div>
+        </div>
+        <div class="warn-box">⚠️ <span>View tidak menyimpan data secara fisik — setiap kali dipanggil, PostgreSQL akan menjalankan ulang query yang tersimpan di dalamnya berdasarkan data tabel terkini.</span></div>
+    </div>
+
+    <!-- Tugas Praktik -->
+    <div class="card">
+        <div class="section-title"><span class="num">5</span> Latihan / Tugas Praktik</div>
+        <div class="task-card">
+            <h4>📝 Tugas Individu</h4>
+            <ol>
+                <li>Buat tabel <code>pengirim</code> (id, nama_instansi) dan hubungkan dengan tabel <code>surat_masuk</code> dari Pertemuan 7 melalui kolom <code>pengirim_id</code>.</li>
+                <li>Tampilkan data surat beserta nama instansi pengirimnya menggunakan <code>INNER JOIN</code>.</li>
+                <li>Tampilkan seluruh surat meskipun instansi pengirimnya belum terdaftar, menggunakan <code>LEFT JOIN</code>.</li>
+                <li>Buat satu subquery untuk menampilkan instansi dengan jumlah surat masuk terbanyak.</li>
+                <li>Buat sebuah <code>VIEW</code> bernama <code>rekap_surat_masuk</code> yang menggabungkan data surat dan instansi pengirim, lalu ambil tangkapan layar hasilnya.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Rangkuman -->
+    <div class="card">
+        <div class="section-title"><span class="num">6</span> Rangkuman &amp; Kata Kunci</div>
+        <p class="body-text">Pertemuan ini melatih mahasiswa menggabungkan data dari beberapa tabel menggunakan <code>INNER JOIN</code> dan <code>LEFT JOIN</code>, menyusun subquery untuk analisis bertingkat, serta membuat view sebagai query tersimpan. Kemampuan ini menjadi bekal penting sebelum mahasiswa mengintegrasikan basis data Neon.Tech dengan Microsoft Access pada Pertemuan 9.</p>
+        <ul class="kw-list" style="margin-top: 14px;">
+            <li>INNER JOIN</li>
+            <li>LEFT JOIN</li>
+            <li>Subquery</li>
+            <li>VIEW</li>
+            <li>Relasi Tabel</li>
+        </ul>
+    </div>
+
+    <div class="nav-footer">
+        <a href="pertemuan07.html" class="nav-btn prev">
+            <span class="nav-label">← Sebelumnya</span>
+            <span class="nav-title">Pertemuan 7 — Query Remote Database: DDL & DML</span>
+        </a>
+        <a href="pertemuan09.html" class="nav-btn next">
+            <span class="nav-label">Selanjutnya →</span>
+            <span class="nav-title">Pertemuan 9 — Koneksi Microsoft Access ke Remote Database</span>
+        </a>
+    </div>
+
+    <footer class="page-footer">
+        <p>© 2026 — Panduan Praktikum Database | Microsoft Access &amp; Neon.Tech</p>
+    </footer>
+
+</div>
+</body>
+</html>
