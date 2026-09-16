@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pertemuan 9 — Koneksi Microsoft Access ke Remote Database</title>
+<style>
+    :root {
+        --bg-1: #0f0c29;
+        --bg-2: #302b63;
+        --bg-3: #24243e;
+        --accent: #7f5af0;
+        --accent-2: #2cb67d;
+        --neon: #00b4d8;
+        --neon-2: #0077b6;
+        --text-light: #fffffe;
+        --text-muted: #94a1b2;
+        --card-bg: rgba(255, 255, 255, 0.06);
+        --card-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 50px 20px 40px;
+        color: var(--text-light);
+        position: relative;
+        overflow-x: hidden;
+        line-height: 1.6;
+    }
+
+    body::before, body::after {
+        content: "";
+        position: fixed;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.35;
+        z-index: -1;
+    }
+    body::before { background: var(--accent); top: -150px; left: -150px; }
+    body::after { background: var(--neon); bottom: -150px; right: -150px; }
+
+    .container { max-width: 880px; margin: 0 auto; position: relative; z-index: 1; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        margin-bottom: 24px;
+        transition: color 0.2s ease;
+    }
+    .back-link:hover { color: var(--text-light); }
+
+    header { margin-bottom: 30px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #cabfff;
+        background: rgba(127, 90, 240, 0.14);
+        border: 1px solid rgba(127, 90, 240, 0.4);
+        padding: 6px 16px;
+        border-radius: 20px;
+        margin-bottom: 18px;
+    }
+
+    header h1 {
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+        margin-bottom: 12px;
+        background: linear-gradient(90deg, #fff, #d6c9ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    header p.lead {
+        font-size: 1rem;
+        color: var(--text-muted);
+        max-width: 640px;
+    }
+
+    .meta-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 26px 0 36px;
+    }
+
+    .meta-chip {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 10px 16px;
+        backdrop-filter: blur(8px);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .meta-chip strong { color: var(--text-light); font-weight: 600; }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 28px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 18px;
+        color: var(--text-light);
+    }
+
+    .section-title .num {
+        background: linear-gradient(135deg, var(--accent), #5f3dc4);
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .obj-list, .kw-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .obj-list li {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+    }
+    .obj-list li > span { flex: 1; min-width: 0; }
+    .obj-list li::before {
+        content: "✓";
+        color: var(--accent-2);
+        font-weight: 700;
+        flex-shrink: 0;
+        background: rgba(44, 182, 125, 0.15);
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-top: 1px;
+    }
+
+    p.body-text { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 14px; }
+    p.body-text:last-child { margin-bottom: 0; }
+    p.body-text strong { color: var(--text-light); }
+
+    .concept-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+    }
+    .concept-item {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .concept-item h4 {
+        font-size: 0.85rem;
+        color: #cabfff;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .concept-item p { font-size: 0.82rem; color: var(--text-muted); }
+
+    .flow-diagram {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+        padding: 18px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+    }
+    .flow-node {
+        background: rgba(127, 90, 240, 0.14);
+        border: 1px solid rgba(127, 90, 240, 0.35);
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 0.8rem;
+        text-align: center;
+        color: #d6c9ff;
+        min-width: 130px;
+    }
+    .flow-node.neon { background: rgba(0, 180, 216, 0.12); border-color: rgba(0, 180, 216, 0.35); color: #6fd8f2; }
+    .flow-arrow { color: var(--text-muted); font-size: 1.1rem; }
+
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+        display: flex;
+        gap: 16px;
+        padding: 18px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .step:last-child { border-bottom: none; padding-bottom: 0; }
+    .step:first-child { padding-top: 0; }
+
+    .step-num {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--accent), #5f3dc4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #fff;
+    }
+    .step-body { flex: 1; min-width: 0; }
+    .step-body h4 { font-size: 0.92rem; color: var(--text-light); margin-bottom: 4px; }
+    .step-body p { font-size: 0.85rem; color: var(--text-muted); }
+
+    .tip-box {
+        margin-top: 18px;
+        background: rgba(127, 90, 240, 0.1);
+        border: 1px solid rgba(127, 90, 240, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #cabfff;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .warn-box {
+        margin-top: 18px;
+        background: rgba(242, 95, 76, 0.1);
+        border: 1px solid rgba(242, 95, 76, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #ffb3a7;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .info-box {
+        margin-top: 18px;
+        background: rgba(0, 180, 216, 0.1);
+        border: 1px solid rgba(0, 180, 216, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #a9e7f7;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    code, .code-block { font-family: 'Consolas', 'Courier New', monospace; }
+    .code-block {
+        background: #0a0818;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 0.8rem;
+        color: #7fe0b4;
+        margin-top: 10px;
+        overflow-x: auto;
+        white-space: pre;
+    }
+    code {
+        background: rgba(255,255,255,0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.82rem;
+        color: #d6c9ff;
+    }
+
+    .task-card {
+        background: rgba(44, 182, 125, 0.08);
+        border: 1px solid rgba(44, 182, 125, 0.3);
+        border-radius: 14px;
+        padding: 20px;
+    }
+    .task-card h4 { font-size: 0.95rem; color: #7fe0b4; margin-bottom: 10px; }
+    .task-card ol { padding-left: 20px; color: var(--text-muted); font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; }
+
+    .kw-list { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+    .kw-list li {
+        background: rgba(127, 90, 240, 0.14);
+        border: 1px solid rgba(127, 90, 240, 0.35);
+        color: #d6c9ff;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+    }
+
+    .nav-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 36px;
+        flex-wrap: wrap;
+    }
+    .nav-btn {
+        flex: 1;
+        min-width: 200px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 16px 20px;
+        text-decoration: none;
+        color: var(--text-light);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-btn:hover { transform: translateY(-3px); border-color: rgba(127, 90, 240, 0.5); }
+    .nav-btn.next { text-align: right; align-items: flex-end; }
+    .nav-btn .nav-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .nav-btn .nav-title { font-size: 0.88rem; font-weight: 600; }
+
+    footer.page-footer {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 22px;
+        border-top: 1px solid var(--card-border);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+        header h1 { font-size: 1.5rem; }
+        .card { padding: 20px; }
+        .flow-diagram { flex-direction: column; }
+        .flow-arrow { transform: rotate(90deg); }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <a href="index.html" class="back-link">&larr; Kembali ke Daftar Pertemuan</a>
+
+    <header>
+        <span class="eyebrow">🟣 Pertemuan 9 · Integrasi Access &amp; Neon.Tech</span>
+        <h1>Koneksi Microsoft Access ke Remote Database</h1>
+        <p class="lead">Menghubungkan Microsoft Access dengan basis data PostgreSQL di Neon.Tech melalui ODBC, sehingga data yang tersimpan di cloud dapat diakses dan dikelola langsung dari Access sebagai <em>linked table</em>.</p>
+    </header>
+
+    <div class="meta-bar">
+        <div class="meta-chip">📚 <strong>Kelompok:</strong>&nbsp;Integrasi &amp; Aplikasi Access</div>
+        <div class="meta-chip">🎯 <strong>Sub-CPMK:</strong>&nbsp;CPMK1 &amp; CPMK2</div>
+        <div class="meta-chip">🧭 <strong>Indikator:</strong>&nbsp;IK 1.2, IK 1.3</div>
+        <div class="meta-chip">⏱️ <strong>Durasi:</strong>&nbsp;100 menit</div>
+    </div>
+
+    <!-- Tujuan Pembelajaran -->
+    <div class="card">
+        <div class="section-title"><span class="num">1</span> Tujuan Pembelajaran</div>
+        <ul class="obj-list">
+            <li><span>Mahasiswa mampu menjelaskan konsep dan fungsi ODBC (Open Database Connectivity) dalam menghubungkan aplikasi lokal dengan basis data cloud.</span></li>
+            <li><span>Mahasiswa mampu memasang dan mengonfigurasi ODBC Driver PostgreSQL pada komputer.</span></li>
+            <li><span>Mahasiswa mampu menghubungkan Microsoft Access ke database Neon.Tech menggunakan fitur <em>External Data</em>.</span></li>
+            <li><span>Mahasiswa mampu menggunakan linked table pada Access untuk mendukung efisiensi kerja administrasi perkantoran secara digital.</span></li>
+        </ul>
+    </div>
+
+    <!-- Konsep Dasar -->
+    <div class="card">
+        <div class="section-title"><span class="num">2</span> Konsep Dasar Integrasi Access &amp; Neon.Tech</div>
+        <p class="body-text">Microsoft Access tidak dapat terhubung langsung ke PostgreSQL tanpa perantara. Diperlukan <strong>ODBC (Open Database Connectivity)</strong> — sebuah driver standar yang menjembatani aplikasi (Access) dengan berbagai jenis basis data (PostgreSQL di Neon.Tech). Setelah terhubung, tabel pada Neon.Tech dapat ditampilkan di Access sebagai <strong>linked table</strong>, yaitu tabel tertaut yang datanya tetap tersimpan di server Neon.Tech, namun dapat dilihat dan diolah seolah-olah merupakan tabel Access biasa.</p>
+        <div class="flow-diagram">
+            <div class="flow-node">🖥️ Microsoft Access</div>
+            <div class="flow-arrow">⇄</div>
+            <div class="flow-node">🔌 ODBC Driver PostgreSQL</div>
+            <div class="flow-arrow">⇄</div>
+            <div class="flow-node neon">☁️ Database Neon.Tech (PostgreSQL)</div>
+        </div>
+        <div class="concept-grid" style="margin-top:18px;">
+            <div class="concept-item">
+                <h4>🔌 ODBC</h4>
+                <p>Standar konektivitas yang memungkinkan aplikasi seperti Access berkomunikasi dengan basis data non-Access, termasuk PostgreSQL.</p>
+            </div>
+            <div class="concept-item">
+                <h4>🔗 Linked Table</h4>
+                <p>Tabel di Access yang menampilkan data dari sumber eksternal secara real-time, tanpa menyalin/menduplikasi data.</p>
+            </div>
+            <div class="concept-item">
+                <h4>🌐 DSN (Data Source Name)</h4>
+                <p>Profil koneksi tersimpan yang berisi informasi server, database, dan kredensial untuk mempermudah koneksi berulang.</p>
+            </div>
+            <div class="concept-item">
+                <h4>🔒 SSL Mode</h4>
+                <p>Neon.Tech mewajibkan koneksi terenkripsi (SSL) demi keamanan data saat diakses dari luar.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Praktik ODBC -->
+    <div class="card">
+        <div class="section-title"><span class="num">3</span> Praktik: Memasang &amp; Mengonfigurasi ODBC Driver PostgreSQL</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Unduh driver ODBC PostgreSQL</h4>
+                    <p>Unduh <strong>psqlODBC</strong> (PostgreSQL ODBC Driver) sesuai versi Windows (32-bit/64-bit) dari situs resmi PostgreSQL, lalu jalankan installer hingga selesai.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Buka ODBC Data Source Administrator</h4>
+                    <p>Cari aplikasi <strong>ODBC Data Sources (64-bit)</strong> melalui menu pencarian Windows, lalu buka tab <strong>System DSN</strong>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Tambahkan DSN baru</h4>
+                    <p>Klik <strong>Add</strong>, pilih driver <em>PostgreSQL Unicode(x64)</em>, lalu isi form konfigurasi menggunakan data dari Neon Console:</p>
+                    <div class="code-block">Data Source  : neon_administrasi
+Database     : neondb
+Server       : ep-xxxx.ap-southeast-1.aws.neon.tech
+Port         : 5432
+User Name    : (sesuai akun Neon.Tech)
+SSL Mode     : require</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <h4>Uji koneksi</h4>
+                    <p>Klik tombol <strong>Test</strong> pada jendela konfigurasi. Notifikasi "Connection successful" menandakan ODBC sudah terhubung dengan benar ke Neon.Tech.</p>
+                </div>
+            </div>
+        </div>
+        <div class="tip-box">💡 <span>Gunakan connection details yang sama seperti yang disalin pada Pertemuan 6 (host, database, username, password) agar konfigurasi ODBC sesuai dengan project Neon.Tech masing-masing.</span></div>
+    </div>
+
+    <!-- Praktik Linked Table -->
+    <div class="card">
+        <div class="section-title"><span class="num">4</span> Praktik: Menghubungkan Access ke Neon.Tech (Linked Table)</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Buka menu External Data</h4>
+                    <p>Pada Microsoft Access, buka ribbon <strong>External Data</strong>, lalu pilih <strong>ODBC Database</strong> pada grup <em>Import &amp; Link</em>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Pilih metode "Link"</h4>
+                    <p>Pilih opsi <strong>Link to the data source by creating a linked table</strong>, lalu klik <strong>OK</strong>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Pilih DSN yang sudah dibuat</h4>
+                    <p>Pada tab <strong>Machine Data Source</strong>, pilih DSN <code>neon_administrasi</code> yang telah dikonfigurasi sebelumnya, lalu masukkan username dan password Neon.Tech jika diminta.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <h4>Pilih tabel yang akan ditautkan</h4>
+                    <p>Centang tabel <code>pegawai</code> dan <code>divisi</code> dari daftar tabel Neon.Tech yang muncul, lalu klik <strong>OK</strong>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-body">
+                    <h4>Periksa hasil linked table</h4>
+                    <p>Tabel <code>pegawai</code> dan <code>divisi</code> akan muncul pada panel navigasi Access dengan ikon panah kecil (🔗), menandakan tabel tersebut tertaut ke sumber eksternal.</p>
+                </div>
+            </div>
+        </div>
+        <div class="warn-box">⚠️ <span>Jangan menghapus atau mengganti nama linked table dari panel navigasi Access, karena tidak akan memengaruhi data asli di Neon.Tech — namun tautan koneksinya akan hilang dan harus dikonfigurasi ulang.</span></div>
+    </div>
+
+    <!-- Praktik Menggunakan Linked Table -->
+    <div class="card">
+        <div class="section-title"><span class="num">5</span> Praktik: Menggunakan Linked Table di Access</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Membuka data melalui Datasheet View</h4>
+                    <p>Klik dua kali pada tabel <code>pegawai</code> di panel navigasi — data yang tampil merupakan data langsung dari Neon.Tech.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Membuat query sederhana di Access</h4>
+                    <p>Gunakan Query Design untuk menampilkan data linked table, misalnya menampilkan pegawai beserta divisinya menggunakan relasi Access seperti biasa.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Memverifikasi sinkronisasi data</h4>
+                    <p>Ubah salah satu data melalui SQL Editor Neon.Tech, lalu refresh linked table di Access (<strong>klik kanan → Refresh</strong>) untuk memastikan perubahan data langsung terlihat.</p>
+                </div>
+            </div>
+        </div>
+        <div class="info-box">ℹ️ <span>Linked table menjadi dasar penting bagi Pertemuan 10–13, di mana form dan report Access akan dibangun di atas data yang bersumber dari Neon.Tech ini.</span></div>
+    </div>
+
+    <!-- Tugas Praktik -->
+    <div class="card">
+        <div class="section-title"><span class="num">6</span> Latihan / Tugas Praktik</div>
+        <div class="task-card">
+            <h4>📝 Tugas Individu</h4>
+            <ol>
+                <li>Pasang ODBC Driver PostgreSQL dan buat DSN baru menggunakan connection details project Neon.Tech masing-masing.</li>
+                <li>Hubungkan Microsoft Access ke Neon.Tech melalui menu <em>External Data → ODBC Database</em>, lalu tautkan tabel <code>pegawai</code> dan <code>divisi</code>.</li>
+                <li>Buka linked table <code>pegawai</code> pada Access dan ambil tangkapan layar datanya.</li>
+                <li>Ubah satu data pada SQL Editor Neon.Tech, lalu tunjukkan hasil refresh pada linked table di Access melalui tangkapan layar sebelum dan sesudah.</li>
+                <li>Kumpulkan seluruh tangkapan layar beserta penjelasan singkat sesuai format yang ditentukan dosen.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Rangkuman -->
+    <div class="card">
+        <div class="section-title"><span class="num">7</span> Rangkuman &amp; Kata Kunci</div>
+        <p class="body-text">Pertemuan ini menjadi jembatan antara materi basis data lokal (Access) dan basis data cloud (Neon.Tech) yang telah dipelajari sebelumnya. Melalui ODBC dan linked table, data administrasi perkantoran dapat dikelola secara digital dan terpusat, mendukung efisiensi kerja sekaligus menjadi fondasi bagi pembuatan form dan report pada pertemuan berikutnya.</p>
+        <ul class="kw-list" style="margin-top: 14px;">
+            <li>ODBC</li>
+            <li>psqlODBC</li>
+            <li>DSN</li>
+            <li>Linked Table</li>
+            <li>External Data</li>
+            <li>SSL Mode</li>
+        </ul>
+    </div>
+
+    <div class="nav-footer">
+        <a href="pertemuan08.html" class="nav-btn prev">
+            <span class="nav-label">← Sebelumnya</span>
+            <span class="nav-title">Pertemuan 8 — Query Remote Database: JOIN & Subquery</span>
+        </a>
+        <a href="pertemuan10.html" class="nav-btn next">
+            <span class="nav-label">Selanjutnya →</span>
+            <span class="nav-title">Pertemuan 10 — Membuat Form dalam Access</span>
+        </a>
+    </div>
+
+    <footer class="page-footer">
+        <p>© 2026 — Panduan Praktikum Database | Microsoft Access &amp; Neon.Tech</p>
+    </footer>
+
+</div>
+</body>
+</html>
