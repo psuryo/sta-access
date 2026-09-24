@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pertemuan 12 — Report dalam Access</title>
+<style>
+    :root {
+        --bg-1: #0f0c29;
+        --bg-2: #302b63;
+        --bg-3: #24243e;
+        --accent: #7f5af0;
+        --accent-2: #2cb67d;
+        --neon: #00b4d8;
+        --neon-2: #0077b6;
+        --text-light: #fffffe;
+        --text-muted: #94a1b2;
+        --card-bg: rgba(255, 255, 255, 0.06);
+        --card-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 50px 20px 40px;
+        color: var(--text-light);
+        position: relative;
+        overflow-x: hidden;
+        line-height: 1.6;
+    }
+
+    body::before, body::after {
+        content: "";
+        position: fixed;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.35;
+        z-index: -1;
+    }
+    body::before { background: var(--accent); top: -150px; left: -150px; }
+    body::after { background: var(--neon); bottom: -150px; right: -150px; }
+
+    .container { max-width: 880px; margin: 0 auto; position: relative; z-index: 1; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        margin-bottom: 24px;
+        transition: color 0.2s ease;
+    }
+    .back-link:hover { color: var(--text-light); }
+
+    header { margin-bottom: 30px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #cabfff;
+        background: rgba(127, 90, 240, 0.14);
+        border: 1px solid rgba(127, 90, 240, 0.4);
+        padding: 6px 16px;
+        border-radius: 20px;
+        margin-bottom: 18px;
+    }
+
+    header h1 {
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+        margin-bottom: 12px;
+        background: linear-gradient(90deg, #fff, #d6c9ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    header p.lead {
+        font-size: 1rem;
+        color: var(--text-muted);
+        max-width: 640px;
+    }
+
+    .meta-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 26px 0 36px;
+    }
+
+    .meta-chip {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 10px 16px;
+        backdrop-filter: blur(8px);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .meta-chip strong { color: var(--text-light); font-weight: 600; }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 28px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 18px;
+        color: var(--text-light);
+    }
+
+    .section-title .num {
+        background: linear-gradient(135deg, var(--accent), #5f3dc4);
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .obj-list, .kw-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .obj-list li {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+    }
+    .obj-list li > span { flex: 1; min-width: 0; }
+    .obj-list li::before {
+        content: "✓";
+        color: var(--accent-2);
+        font-weight: 700;
+        flex-shrink: 0;
+        background: rgba(44, 182, 125, 0.15);
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-top: 1px;
+    }
+
+    p.body-text { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 14px; }
+    p.body-text:last-child { margin-bottom: 0; }
+    p.body-text strong { color: var(--text-light); }
+
+    .concept-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+    }
+    .concept-item {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .concept-item h4 {
+        font-size: 0.85rem;
+        color: #cabfff;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .concept-item p { font-size: 0.82rem; color: var(--text-muted); }
+
+    /* report layout preview */
+    .report-preview {
+        margin-top: 18px;
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #100d24;
+    }
+    .rp-band {
+        padding: 10px 16px;
+        font-size: 0.74rem;
+        border-bottom: 1px dashed var(--card-border);
+    }
+    .rp-band:last-child { border-bottom: none; }
+    .rp-label { color: #6fd8f2; font-weight: 600; margin-bottom: 4px; display: block; font-size: 0.68rem; letter-spacing: 0.5px; text-transform: uppercase; }
+    .rp-header { background: rgba(127, 90, 240, 0.14); color: #d6c9ff; }
+    .rp-pageheader { background: rgba(255,255,255,0.03); color: var(--text-muted); }
+    .rp-groupheader { background: rgba(0, 180, 216, 0.1); color: #6fd8f2; }
+    .rp-detail { background: rgba(255,255,255,0.02); color: var(--text-muted); }
+    .rp-detail .rp-row { display: flex; justify-content: space-between; padding: 3px 0; }
+    .rp-groupfooter { background: rgba(44, 182, 125, 0.08); color: #7fe0b4; }
+    .rp-pagefooter { background: rgba(255,255,255,0.03); color: var(--text-muted); }
+
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+        display: flex;
+        gap: 16px;
+        padding: 18px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .step:last-child { border-bottom: none; padding-bottom: 0; }
+    .step:first-child { padding-top: 0; }
+
+    .step-num {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--accent), #5f3dc4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #fff;
+    }
+    .step-body { flex: 1; min-width: 0; }
+    .step-body h4 { font-size: 0.92rem; color: var(--text-light); margin-bottom: 4px; }
+    .step-body p { font-size: 0.85rem; color: var(--text-muted); }
+
+    .tip-box {
+        margin-top: 18px;
+        background: rgba(127, 90, 240, 0.1);
+        border: 1px solid rgba(127, 90, 240, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #cabfff;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .warn-box {
+        margin-top: 18px;
+        background: rgba(242, 95, 76, 0.1);
+        border: 1px solid rgba(242, 95, 76, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #ffb3a7;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .info-box {
+        margin-top: 18px;
+        background: rgba(0, 180, 216, 0.1);
+        border: 1px solid rgba(0, 180, 216, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #a9e7f7;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    code, .code-block { font-family: 'Consolas', 'Courier New', monospace; }
+    .code-block {
+        background: #0a0818;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 0.8rem;
+        color: #7fe0b4;
+        margin-top: 10px;
+        overflow-x: auto;
+        white-space: pre;
+    }
+    code {
+        background: rgba(255,255,255,0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.82rem;
+        color: #d6c9ff;
+    }
+
+    .task-card {
+        background: rgba(44, 182, 125, 0.08);
+        border: 1px solid rgba(44, 182, 125, 0.3);
+        border-radius: 14px;
+        padding: 20px;
+    }
+    .task-card h4 { font-size: 0.95rem; color: #7fe0b4; margin-bottom: 10px; }
+    .task-card ol { padding-left: 20px; color: var(--text-muted); font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; }
+
+    .kw-list { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+    .kw-list li {
+        background: rgba(127, 90, 240, 0.14);
+        border: 1px solid rgba(127, 90, 240, 0.35);
+        color: #d6c9ff;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+    }
+
+    .nav-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 36px;
+        flex-wrap: wrap;
+    }
+    .nav-btn {
+        flex: 1;
+        min-width: 200px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 16px 20px;
+        text-decoration: none;
+        color: var(--text-light);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-btn:hover { transform: translateY(-3px); border-color: rgba(127, 90, 240, 0.5); }
+    .nav-btn.next { text-align: right; align-items: flex-end; }
+    .nav-btn .nav-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .nav-btn .nav-title { font-size: 0.88rem; font-weight: 600; }
+
+    footer.page-footer {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 22px;
+        border-top: 1px solid var(--card-border);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+        header h1 { font-size: 1.5rem; }
+        .card { padding: 20px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <a href="index.html" class="back-link">&larr; Kembali ke Daftar Pertemuan</a>
+
+    <header>
+        <span class="eyebrow">🟣 Pertemuan 12 · Integrasi Access &amp; Neon.Tech</span>
+        <h1>Report dalam Access</h1>
+        <p class="lead">Merancang laporan (report) menggunakan Report Wizard dan Design View, mengelompokkan serta mengurutkan data, menyusun header/footer, dan menampilkan hasil laporan melalui Print Preview sebagai dokumen administrasi perkantoran yang siap dicetak.</p>
+    </header>
+
+    <div class="meta-bar">
+        <div class="meta-chip">📚 <strong>Kelompok:</strong>&nbsp;Integrasi &amp; Aplikasi Access</div>
+        <div class="meta-chip">🎯 <strong>Sub-CPMK:</strong>&nbsp;CPMK1</div>
+        <div class="meta-chip">🧭 <strong>Indikator:</strong>&nbsp;IK 1.2, IK 1.3</div>
+        <div class="meta-chip">⏱️ <strong>Durasi:</strong>&nbsp;100 menit</div>
+    </div>
+
+    <!-- Tujuan Pembelajaran -->
+    <div class="card">
+        <div class="section-title"><span class="num">1</span> Tujuan Pembelajaran</div>
+        <ul class="obj-list">
+            <li><span>Mahasiswa mampu menjelaskan fungsi report sebagai media penyajian dan pencetakan data pada Microsoft Access.</span></li>
+            <li><span>Mahasiswa mampu membuat report menggunakan <strong>Report Wizard</strong> dan menyesuaikannya melalui <strong>Design View</strong>.</span></li>
+            <li><span>Mahasiswa mampu mengelompokkan (grouping) dan mengurutkan (sorting) data pada report.</span></li>
+            <li><span>Mahasiswa mampu mengatur header/footer serta menampilkan hasil laporan melalui Print Preview untuk mendukung efisiensi kerja administrasi perkantoran secara digital.</span></li>
+        </ul>
+    </div>
+
+    <!-- Konsep Dasar -->
+    <div class="card">
+        <div class="section-title"><span class="num">2</span> Konsep Dasar Report Access</div>
+        <p class="body-text"><strong>Report</strong> adalah objek Access yang dirancang khusus untuk menyajikan data dalam format yang rapi dan siap cetak, berbeda dengan form yang difokuskan untuk input data. Report umumnya digunakan untuk membuat rekap, daftar, atau laporan resmi seperti daftar pegawai per divisi.</p>
+        <p class="body-text">Setiap report tersusun atas beberapa <strong>bagian (band/section)</strong> yang menentukan di mana suatu elemen akan dicetak pada laporan:</p>
+        <div class="report-preview">
+            <div class="rp-band rp-header"><span class="rp-label">Report Header</span>Laporan Data Pegawai — Universitas Katolik Widya Mandala Surabaya</div>
+            <div class="rp-band rp-pageheader"><span class="rp-label">Page Header</span>Nama &nbsp;·&nbsp; Jabatan &nbsp;·&nbsp; Gaji</div>
+            <div class="rp-band rp-groupheader"><span class="rp-label">Group Header (Divisi)</span>Divisi: Keuangan</div>
+            <div class="rp-band rp-detail">
+                <span class="rp-label">Detail</span>
+                <div class="rp-row"><span>Siti Aminah</span><span>Staf Administrasi</span><span>4.500.000</span></div>
+                <div class="rp-row"><span>Andi Wijaya</span><span>Staf Administrasi</span><span>4.750.000</span></div>
+            </div>
+            <div class="rp-band rp-groupfooter"><span class="rp-label">Group Footer (Divisi)</span>Subtotal Divisi Keuangan: 9.250.000</div>
+            <div class="rp-band rp-pagefooter"><span class="rp-label">Page Footer</span>Halaman 1 dari 3 &nbsp;·&nbsp; Dicetak: 24/09/2026</div>
+        </div>
+        <div class="concept-grid" style="margin-top:18px;">
+            <div class="concept-item">
+                <h4>🧙 Report Wizard</h4>
+                <p>Fitur otomatis untuk membuat report secara cepat berdasarkan tabel/query, lengkap dengan pilihan grouping dan sorting.</p>
+            </div>
+            <div class="concept-item">
+                <h4>🎨 Design View</h4>
+                <p>Mode perancangan manual untuk mengatur tata letak, band, dan kontrol pada report secara rinci.</p>
+            </div>
+            <div class="concept-item">
+                <h4>🗂️ Grouping</h4>
+                <p>Mengelompokkan data berdasarkan kolom tertentu (misalnya divisi), lengkap dengan header/footer per kelompok.</p>
+            </div>
+            <div class="concept-item">
+                <h4>🖨️ Print Preview</h4>
+                <p>Tampilan pratinjau laporan sebelum dicetak, menunjukkan hasil akhir persis seperti saat dicetak di kertas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Praktik Report Wizard -->
+    <div class="card">
+        <div class="section-title"><span class="num">3</span> Praktik: Membuat Report dengan Report Wizard</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Pilih sumber data</h4>
+                    <p>Pada panel navigasi, pilih tabel/linked table <code>pegawai</code>, atau gunakan query hasil <code>JOIN</code> dengan tabel <code>divisi</code> dari Pertemuan 8 agar nama divisi ikut tampil.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Jalankan Report Wizard</h4>
+                    <p>Buka ribbon <strong>Create</strong> → grup <em>Reports</em> → klik <strong>Report Wizard</strong>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Pilih field yang ditampilkan</h4>
+                    <p>Pindahkan field <code>nama</code>, <code>jabatan</code>, <code>nama_divisi</code>, dan <code>gaji</code> ke kolom <em>Selected Fields</em>, lalu klik <strong>Next</strong>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <h4>Tentukan tingkat pengelompokan</h4>
+                    <p>Pilih <code>nama_divisi</code> sebagai level grouping, sehingga data pegawai akan dikelompokkan berdasarkan divisinya masing-masing.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-body">
+                    <h4>Tentukan urutan data — Sorting</h4>
+                    <p>Atur pengurutan data di dalam tiap kelompok, misalnya berdasarkan <code>nama</code> secara A–Z, lalu klik <strong>Next</strong> hingga <strong>Finish</strong>.</p>
+                </div>
+            </div>
+        </div>
+        <div class="tip-box">💡 <span>Grouping paling efektif digunakan pada kolom yang memiliki beberapa kategori berulang, seperti divisi, jabatan, atau tanggal — bukan pada kolom yang nilainya unik seperti nama pegawai.</span></div>
+    </div>
+
+    <!-- Praktik Grouping & Sorting -->
+    <div class="card">
+        <div class="section-title"><span class="num">4</span> Praktik: Mengatur Grouping &amp; Sorting di Design View</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Buka panel Group, Sort, and Total</h4>
+                    <p>Pada Design View report, buka ribbon <strong>Design → Grouping &amp; Totals → Group &amp; Sort</strong> untuk menampilkan panel pengaturan di bagian bawah layar.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Tambahkan Total pada Group Footer</h4>
+                    <p>Pada baris grouping <code>nama_divisi</code>, klik <strong>More →</strong> lalu aktifkan <em>with Sum</em> pada kolom <code>gaji</code> agar subtotal gaji per divisi otomatis muncul di Group Footer.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Tambahkan level sorting kedua</h4>
+                    <p>Klik <strong>Add a sort</strong>, lalu pilih kolom <code>gaji</code> dengan urutan <em>from largest to smallest</em> agar pegawai dengan gaji tertinggi tampil lebih dulu dalam tiap divisi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Praktik Header/Footer -->
+    <div class="card">
+        <div class="section-title"><span class="num">5</span> Praktik: Mengatur Header, Footer &amp; Print Preview</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h4>Menyesuaikan Report Header</h4>
+                    <p>Tambahkan label judul laporan pada bagian <strong>Report Header</strong>, misalnya "Laporan Data Pegawai per Divisi", lengkap dengan logo atau nama instansi jika diperlukan.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h4>Menambahkan nomor halaman pada Page Footer</h4>
+                    <p>Gunakan ribbon <strong>Design → Header/Footer → Page Numbers</strong>, lalu pilih format "Page N of M" agar nomor halaman tampil otomatis di setiap halaman.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h4>Menambahkan tanggal cetak</h4>
+                    <p>Gunakan ribbon <strong>Design → Header/Footer → Date and Time</strong> untuk menampilkan tanggal saat laporan dicetak pada Page Footer.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <h4>Melihat hasil melalui Print Preview</h4>
+                    <p>Klik kanan pada report, pilih <strong>Print Preview</strong> untuk memeriksa tata letak, grouping, subtotal, serta header/footer sebelum laporan benar-benar dicetak atau diekspor ke PDF.</p>
+                </div>
+            </div>
+        </div>
+        <div class="info-box">ℹ️ <span>Pada Print Preview, gunakan ribbon <strong>Print Preview → Export → PDF or XPS</strong> untuk menyimpan laporan sebagai berkas PDF yang siap dibagikan.</span></div>
+    </div>
+
+    <!-- Tugas Praktik -->
+    <div class="card">
+        <div class="section-title"><span class="num">6</span> Latihan / Tugas Praktik</div>
+        <div class="task-card">
+            <h4>📝 Tugas Individu</h4>
+            <ol>
+                <li>Buat report data pegawai menggunakan Report Wizard, dikelompokkan berdasarkan <code>nama_divisi</code>.</li>
+                <li>Tambahkan subtotal gaji (Sum) pada Group Footer setiap divisi.</li>
+                <li>Atur sorting data di dalam kelompok berdasarkan gaji dari yang tertinggi ke terendah.</li>
+                <li>Tambahkan judul laporan pada Report Header, serta nomor halaman dan tanggal cetak pada Page Footer.</li>
+                <li>Tampilkan hasil akhir melalui Print Preview, lalu ekspor sebagai PDF dan kumpulkan sesuai format yang ditentukan dosen.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Rangkuman -->
+    <div class="card">
+        <div class="section-title"><span class="num">7</span> Rangkuman &amp; Kata Kunci</div>
+        <p class="body-text">Pertemuan ini membekali mahasiswa dengan kemampuan menyusun laporan data yang rapi dan informatif menggunakan Report Wizard dan Design View, lengkap dengan grouping, sorting, header/footer, hingga siap dicetak melalui Print Preview. Kemampuan ini penting untuk menghasilkan dokumen administrasi perkantoran yang profesional, serta menjadi dasar sebelum mempelajari fitur report lanjutan pada Pertemuan 13.</p>
+        <ul class="kw-list" style="margin-top: 14px;">
+            <li>Report Wizard</li>
+            <li>Design View</li>
+            <li>Grouping</li>
+            <li>Sorting</li>
+            <li>Group Header/Footer</li>
+            <li>Print Preview</li>
+        </ul>
+    </div>
+
+    <div class="nav-footer">
+        <a href="pertemuan11.html" class="nav-btn prev">
+            <span class="nav-label">← Sebelumnya</span>
+            <span class="nav-title">Pertemuan 11 — SubForm dalam Access</span>
+        </a>
+        <a href="pertemuan13.html" class="nav-btn next">
+            <span class="nav-label">Selanjutnya →</span>
+            <span class="nav-title">Pertemuan 13 — Advanced Report dalam Access</span>
+        </a>
+    </div>
+
+    <footer class="page-footer">
+        <p>© 2026 — Panduan Praktikum Database | Microsoft Access &amp; Neon.Tech</p>
+    </footer>
+
+</div>
+</body>
+</html>
