@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pertemuan 14 — Persiapan Ujian: Latihan UTS</title>
+<style>
+    :root {
+        --bg-1: #0f0c29;
+        --bg-2: #2b1b3d;
+        --bg-3: #24243e;
+        --accent: #f25f4c;
+        --accent-dark: #c0392b;
+        --accent-2: #2cb67d;
+        --neon: #00b4d8;
+        --text-light: #fffffe;
+        --text-muted: #94a1b2;
+        --card-bg: rgba(255, 255, 255, 0.06);
+        --card-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 50px 20px 40px;
+        color: var(--text-light);
+        position: relative;
+        overflow-x: hidden;
+        line-height: 1.6;
+    }
+
+    body::before, body::after {
+        content: "";
+        position: fixed;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.3;
+        z-index: -1;
+    }
+    body::before { background: var(--accent); top: -150px; left: -150px; }
+    body::after { background: #7f5af0; bottom: -150px; right: -150px; }
+
+    .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        margin-bottom: 24px;
+        transition: color 0.2s ease;
+    }
+    .back-link:hover { color: var(--text-light); }
+
+    header { margin-bottom: 30px; }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #ffb3a7;
+        background: rgba(242, 95, 76, 0.14);
+        border: 1px solid rgba(242, 95, 76, 0.4);
+        padding: 6px 16px;
+        border-radius: 20px;
+        margin-bottom: 18px;
+    }
+
+    header h1 {
+        font-size: clamp(1.6rem, 4vw, 2.3rem);
+        margin-bottom: 12px;
+        background: linear-gradient(90deg, #fff, #ffd0c9);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    header p.lead {
+        font-size: 1rem;
+        color: var(--text-muted);
+        max-width: 680px;
+    }
+
+    .meta-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 26px 0 36px;
+    }
+
+    .meta-chip {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 10px 16px;
+        backdrop-filter: blur(8px);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .meta-chip strong { color: var(--text-light); font-weight: 600; }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 28px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 18px;
+        color: var(--text-light);
+        flex-wrap: wrap;
+    }
+    .section-title .left { display: flex; align-items: center; gap: 10px; }
+
+    .section-title .num {
+        background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .badge-points {
+        background: rgba(242, 95, 76, 0.14);
+        border: 1px solid rgba(242, 95, 76, 0.4);
+        color: #ffb3a7;
+        font-size: 0.74rem;
+        padding: 5px 12px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    p.body-text { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 14px; }
+    p.body-text:last-child { margin-bottom: 0; }
+    p.body-text strong { color: var(--text-light); }
+
+    h4.sub-heading {
+        font-size: 0.92rem;
+        color: #ffb3a7;
+        margin: 18px 0 8px;
+    }
+    h4.sub-heading:first-child { margin-top: 0; }
+
+    ul.plain-list, ol.plain-list {
+        padding-left: 20px;
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 10px;
+    }
+    ul.plain-list:last-child, ol.plain-list:last-child { margin-bottom: 0; }
+    ul.plain-list li strong, ol.plain-list li strong { color: var(--text-light); }
+
+    code, .code-block { font-family: 'Consolas', 'Courier New', monospace; }
+    code {
+        background: rgba(255,255,255,0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.82rem;
+        color: #ffd0c9;
+    }
+    .code-block {
+        background: #0a0818;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 0.8rem;
+        color: #7fe0b4;
+        margin-top: 10px;
+        overflow-x: auto;
+        white-space: pre;
+    }
+
+    /* generic table */
+    table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    table.data-table th {
+        background: rgba(242, 95, 76, 0.16);
+        color: var(--text-light);
+        text-align: left;
+        padding: 8px 10px;
+        font-weight: 600;
+    }
+    table.data-table td {
+        padding: 7px 10px;
+        color: var(--text-muted);
+        border-top: 1px solid var(--card-border);
+    }
+    table.data-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+    table.data-table td.num { text-align: right; }
+
+    .table-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+        margin-top: 8px;
+    }
+    .table-block h4 { font-size: 0.82rem; color: #6fd8f2; margin-bottom: 6px; }
+    .table-count { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
+
+    .subtask {
+        border-left: 3px solid rgba(242, 95, 76, 0.4);
+        padding: 4px 0 4px 16px;
+        margin-top: 16px;
+    }
+    .subtask:first-of-type { margin-top: 0; }
+    .subtask h4 {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .subtask .pts {
+        font-size: 0.7rem;
+        color: #ffb3a7;
+        background: rgba(242, 95, 76, 0.12);
+        border: 1px solid rgba(242, 95, 76, 0.3);
+        padding: 2px 8px;
+        border-radius: 10px;
+    }
+
+    .tip-box {
+        margin-top: 16px;
+        background: rgba(0, 180, 216, 0.1);
+        border: 1px solid rgba(0, 180, 216, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #a9e7f7;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .warn-box {
+        margin-top: 16px;
+        background: rgba(242, 95, 76, 0.1);
+        border: 1px solid rgba(242, 95, 76, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #ffb3a7;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .info-box {
+        margin-top: 16px;
+        background: rgba(127, 90, 240, 0.1);
+        border: 1px solid rgba(127, 90, 240, 0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 0.85rem;
+        color: #cabfff;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    /* vertical flow */
+    .vflow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+    }
+    .vflow-node {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 9px 18px;
+        font-size: 0.8rem;
+        text-align: center;
+        color: var(--text-muted);
+        min-width: 220px;
+    }
+    .vflow-node.highlight {
+        background: rgba(242, 95, 76, 0.12);
+        border-color: rgba(242, 95, 76, 0.4);
+        color: #ffb3a7;
+        font-weight: 600;
+    }
+    .vflow-node.sub {
+        background: rgba(0, 180, 216, 0.08);
+        border-color: rgba(0, 180, 216, 0.3);
+        color: #6fd8f2;
+        font-size: 0.76rem;
+        min-width: 200px;
+    }
+    .vflow-arrow { color: var(--text-muted); font-size: 0.9rem; margin: 3px 0; }
+
+    /* pengumpulan cards */
+    .collect-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        margin-top: 8px;
+    }
+    .collect-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .collect-card h4 { font-size: 0.9rem; color: #ffb3a7; margin-bottom: 8px; }
+    .collect-card p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+    .collect-card p:last-child { margin-bottom: 0; }
+
+    .kw-list { list-style: none; display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; }
+    .kw-list li {
+        background: rgba(242, 95, 76, 0.12);
+        border: 1px solid rgba(242, 95, 76, 0.35);
+        color: #ffb3a7;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+    }
+
+    .nav-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 36px;
+        flex-wrap: wrap;
+    }
+    .nav-btn {
+        flex: 1;
+        min-width: 200px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 16px 20px;
+        text-decoration: none;
+        color: var(--text-light);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-btn:hover { transform: translateY(-3px); border-color: rgba(242, 95, 76, 0.5); }
+    .nav-btn.next { text-align: right; align-items: flex-end; }
+    .nav-btn .nav-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .nav-btn .nav-title { font-size: 0.88rem; font-weight: 600; }
+
+    footer.page-footer {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 22px;
+        border-top: 1px solid var(--card-border);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+        header h1 { font-size: 1.4rem; }
+        .card { padding: 20px; }
+        table.data-table { font-size: 0.72rem; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <a href="index.html" class="back-link">&larr; Kembali ke Daftar Pertemuan</a>
+
+    <header>
+        <span class="eyebrow">🔴 Pertemuan 14 · Persiapan UTS</span>
+        <h1>Persiapan Ujian — Latihan UTS Basis Data</h1>
+        <p class="lead">Latihan soal UTS berbentuk studi kasus <strong>Database Perpustakaan</strong>, mencakup seluruh materi Pertemuan 1–13: import data ke Neon.Tech, Primary/Foreign Key &amp; Relationship, integrasi ODBC, query, form, dan report Microsoft Access.</p>
+    </header>
+
+    <div class="meta-bar">
+        <div class="meta-chip">📚 <strong>Mata Kuliah:</strong>&nbsp;Basis Data / Database</div>
+        <div class="meta-chip">⏱️ <strong>Waktu:</strong>&nbsp;120 menit</div>
+        <div class="meta-chip">📝 <strong>Bentuk:</strong>&nbsp;Praktik Individu</div>
+        <div class="meta-chip">🎯 <strong>Total Nilai:</strong>&nbsp;100</div>
+        <div class="meta-chip">🧭 <strong>CPMK:</strong>&nbsp;CPMK1 &amp; CPMK2</div>
+    </div>
+
+    <div class="info-box">📎 <span>Berkas data <code>anggota.csv</code>, <code>buku.csv</code>, dan <code>pinjam.csv</code> (tersedia juga dalam format Excel) dapat diunduh melalui <strong>Edlink</strong> mata kuliah ini sebelum mulai mengerjakan latihan.</span></div>
+
+    <!-- Studi Kasus -->
+    <div class="card">
+        <div class="section-title"><div class="left"><span class="num">1</span> Studi Kasus: Database Perpustakaan</div></div>
+        <p class="body-text">Sebuah perpustakaan membutuhkan sistem database sederhana untuk mengelola <strong>anggota perpustakaan</strong>, <strong>buku</strong>, dan <strong>transaksi peminjaman/pengembalian buku</strong>. Database terdiri dari tiga tabel berikut.</p>
+        <div class="table-grid">
+            <div class="table-block">
+                <h4>🗂️ Tabel: anggota</h4>
+                <table class="data-table">
+                    <tr><th>Field</th><th>Keterangan</th></tr>
+                    <tr><td><code>nomember</code></td><td>Nomor anggota</td></tr>
+                    <tr><td><code>nama</code></td><td>Nama anggota</td></tr>
+                    <tr><td><code>alamat</code></td><td>Alamat anggota</td></tr>
+                    <tr><td><code>kota</code></td><td>Kota anggota</td></tr>
+                    <tr><td><code>jenkel</code></td><td>Jenis kelamin</td></tr>
+                </table>
+                <p class="table-count">Terdapat 50 data anggota.</p>
+            </div>
+            <div class="table-block">
+                <h4>🗂️ Tabel: buku</h4>
+                <table class="data-table">
+                    <tr><th>Field</th><th>Keterangan</th></tr>
+                    <tr><td><code>nobuku</code></td><td>Nomor/kode buku</td></tr>
+                    <tr><td><code>judul</code></td><td>Judul buku</td></tr>
+                    <tr><td><code>pengarang</code></td><td>Nama pengarang</td></tr>
+                    <tr><td><code>tahunterbit</code></td><td>Tahun terbit</td></tr>
+                    <tr><td><code>penerbit</code></td><td>Nama penerbit</td></tr>
+                    <tr><td><code>status</code></td><td>dipinjam / tersedia / diperbaiki</td></tr>
+                </table>
+                <p class="table-count">Terdapat 50 data buku.</p>
+            </div>
+            <div class="table-block">
+                <h4>🗂️ Tabel: pinjam</h4>
+                <table class="data-table">
+                    <tr><th>Field</th><th>Keterangan</th></tr>
+                    <tr><td><code>nopinjam</code></td><td>Nomor transaksi peminjaman</td></tr>
+                    <tr><td><code>nobuku</code></td><td>Buku yang dipinjam</td></tr>
+                    <tr><td><code>nomember</code></td><td>Anggota yang meminjam</td></tr>
+                    <tr><td><code>tanggalpinjam</code></td><td>Tanggal peminjaman</td></tr>
+                    <tr><td><code>tanggalkembali</code></td><td>Tanggal pengembalian</td></tr>
+                </table>
+                <p class="table-count">Terdapat 300 data transaksi peminjaman.</p>
+            </div>
+        </div>
+        <div class="warn-box">⚠️ <span>Jika buku belum dikembalikan, field <code>tanggalkembali</code> bernilai <code>NULL</code>.</span></div>
+    </div>
+
+    <!-- Bagian A -->
+    <div class="card">
+        <div class="section-title">
+            <div class="left"><span class="num">A</span> Import Data ke Neon.Tech</div>
+            <span class="badge-points">20 poin · ±20 menit</span>
+        </div>
+        <p class="body-text">Dosen menyediakan tiga file CSV (<code>anggota.csv</code>, <code>buku.csv</code>, <code>pinjam.csv</code>) yang berisi data perpustakaan untuk digunakan dalam latihan ini.</p>
+
+        <div class="subtask">
+            <h4>1. Membuat Database Neon.Tech <span class="pts">3 poin</span></h4>
+            <p class="body-text">Buat sebuah project/database PostgreSQL pada Neon.Tech dengan nama database/project:</p>
+            <div class="code-block">uts_NIM</div>
+        </div>
+
+        <div class="subtask">
+            <h4>2. Import Data <span class="pts">5 poin</span></h4>
+            <p class="body-text">Import ketiga file CSV ke database Neon.Tech sehingga terbentuk tiga tabel: <code>anggota</code>, <code>buku</code>, <code>pinjam</code>. Pastikan seluruh data berhasil diimport sesuai jumlah berikut:</p>
+            <table class="data-table">
+                <tr><th>Tabel</th><th>Jumlah Data</th></tr>
+                <tr><td><code>anggota</code></td><td class="num">50</td></tr>
+                <tr><td><code>buku</code></td><td class="num">50</td></tr>
+                <tr><td><code>pinjam</code></td><td class="num">300</td></tr>
+            </table>
+        </div>
+
+        <div class="subtask">
+            <h4>3. Memeriksa &amp; Memperbaiki Tipe Data <span class="pts">12 poin</span></h4>
+            <p class="body-text">Periksa struktur ketiga tabel setelah proses import, identifikasi field yang tipe datanya belum sesuai, lalu perbaiki. Contoh: field bertipe <code>TEXT</code> dapat diubah menjadi <code>VARCHAR(n)</code>, <code>INTEGER</code>, atau <code>DATE</code> sesuai kebutuhan.</p>
+
+            <h4 class="sub-heading">Tabel anggota</h4>
+            <table class="data-table">
+                <tr><th>Field</th><th>Tipe Data yang Sesuai</th></tr>
+                <tr><td><code>nomember</code></td><td>Teks dengan panjang sesuai</td></tr>
+                <tr><td><code>nama</code></td><td>Teks</td></tr>
+                <tr><td><code>alamat</code></td><td>Teks</td></tr>
+                <tr><td><code>kota</code></td><td>Teks</td></tr>
+                <tr><td><code>jenkel</code></td><td>Teks</td></tr>
+            </table>
+
+            <h4 class="sub-heading">Tabel buku</h4>
+            <table class="data-table">
+                <tr><th>Field</th><th>Tipe Data yang Sesuai</th></tr>
+                <tr><td><code>nobuku</code></td><td>Teks</td></tr>
+                <tr><td><code>judul</code></td><td>Teks</td></tr>
+                <tr><td><code>pengarang</code></td><td>Teks</td></tr>
+                <tr><td><code>tahunterbit</code></td><td>Bilangan bulat</td></tr>
+                <tr><td><code>penerbit</code></td><td>Teks</td></tr>
+                <tr><td><code>status</code></td><td>Teks</td></tr>
+            </table>
+
+            <h4 class="sub-heading">Tabel pinjam</h4>
+            <table class="data-table">
+                <tr><th>Field</th><th>Tipe Data yang Sesuai</th></tr>
+                <tr><td><code>nopinjam</code></td><td>Teks</td></tr>
+                <tr><td><code>nobuku</code></td><td>Teks</td></tr>
+                <tr><td><code>nomember</code></td><td>Teks</td></tr>
+                <tr><td><code>tanggalpinjam</code></td><td>Tanggal</td></tr>
+                <tr><td><code>tanggalkembali</code></td><td>Tanggal, dapat bernilai NULL</td></tr>
+            </table>
+        </div>
+        <div class="tip-box">💡 <span>Tentukan sendiri ukuran <code>VARCHAR(n)</code> yang sesuai berdasarkan karakteristik data.</span></div>
+    </div>
+
+    <!-- Bagian B -->
+    <div class="card">
+        <div class="section-title">
+            <div class="left"><span class="num">B</span> Primary Key, Foreign Key &amp; Relationship</div>
+            <span class="badge-points">20 poin · ±20 menit</span>
+        </div>
+        <p class="body-text">Berdasarkan struktur dan isi data pada ketiga tabel, lakukan analisis untuk menentukan struktur database relasional yang tepat.</p>
+
+        <div class="subtask">
+            <h4>4. Menentukan Primary Key <span class="pts">7 poin</span></h4>
+            <p class="body-text">Tentukan Primary Key yang tepat untuk masing-masing tabel (<code>anggota</code>, <code>buku</code>, <code>pinjam</code>). Primary Key harus:</p>
+            <ul class="plain-list">
+                <li>dapat mengidentifikasi record secara unik;</li>
+                <li>tidak boleh memiliki nilai duplikat;</li>
+                <li>tidak boleh bernilai <code>NULL</code>.</li>
+            </ul>
+            <p class="body-text">Terapkan Primary Key tersebut pada database PostgreSQL di Neon.Tech.</p>
+        </div>
+
+        <div class="subtask">
+            <h4>5. Menentukan Foreign Key <span class="pts">7 poin</span></h4>
+            <p class="body-text">Identifikasi field yang dapat digunakan sebagai Foreign Key berdasarkan hubungan antar data. Foreign Key harus memastikan bahwa:</p>
+            <ul class="plain-list">
+                <li>setiap transaksi peminjaman mengacu pada anggota yang valid;</li>
+                <li>setiap transaksi peminjaman mengacu pada buku yang valid;</li>
+                <li>tidak terdapat referensi ke anggota atau buku yang tidak tersedia;</li>
+                <li>referential integrity tetap terjaga.</li>
+            </ul>
+            <div class="warn-box">⚠️ <span>Jangan membuat field baru. Gunakan field yang sudah tersedia pada tabel.</span></div>
+        </div>
+
+        <div class="subtask">
+            <h4>6. Membuat Relationship <span class="pts">6 poin</span></h4>
+            <p class="body-text">Berdasarkan Primary Key dan Foreign Key yang telah ditentukan:</p>
+            <ol class="plain-list">
+                <li>Tentukan tabel yang menjadi <strong>parent table</strong>.</li>
+                <li>Tentukan tabel yang menjadi <strong>child table</strong>.</li>
+                <li>Tentukan jenis relationship antar tabel.</li>
+                <li>Tentukan field yang digunakan untuk menghubungkan tabel.</li>
+                <li>Terapkan relationship tersebut pada database.</li>
+                <li>Pastikan relationship menjaga <strong>referential integrity</strong>.</li>
+            </ol>
+            <div class="code-block">[TABEL A]
+    │
+    │ 1 : N
+    │
+[TABEL B]</div>
+            <div class="info-box">ℹ️ <span>Field Primary Key, Foreign Key, dan hubungan antar tabel tidak diberikan dalam soal — analisis sendiri berdasarkan struktur dan makna data.</span></div>
+        </div>
+    </div>
+
+    <!-- Bagian C -->
+    <div class="card">
+        <div class="section-title">
+            <div class="left"><span class="num">C</span> Integrasi Neon.Tech dengan Microsoft Access</div>
+            <span class="badge-points">15 poin · ±15 menit</span>
+        </div>
+
+        <div class="subtask">
+            <h4>7. Konfigurasi ODBC <span class="pts">5 poin</span></h4>
+            <p class="body-text">Konfigurasikan koneksi ODBC agar Microsoft Access dapat terhubung dengan database PostgreSQL pada Neon.Tech, menggunakan informasi koneksi yang tersedia pada Neon Console. Pastikan koneksi dapat digunakan oleh Microsoft Access.</p>
+        </div>
+
+        <div class="subtask">
+            <h4>8. Membuat Linked Table <span class="pts">10 poin</span></h4>
+            <p class="body-text">Buat database Microsoft Access dengan nama:</p>
+            <div class="code-block">UTS_NIM_Nama.accdb</div>
+            <p class="body-text">Hubungkan tabel dari database Neon.Tech ke Microsoft Access menggunakan mekanisme <strong>Linked Table</strong>. Tabel yang harus tersedia di Access: <code>anggota</code>, <code>buku</code>, <code>pinjam</code>.</p>
+            <div class="warn-box">⚠️ <span>Jangan membuat ulang ketiga tabel secara manual di Microsoft Access. Gunakan tabel yang terhubung dari database Neon.Tech.</span></div>
+        </div>
+    </div>
+
+    <!-- Bagian D -->
+    <div class="card">
+        <div class="section-title">
+            <div class="left"><span class="num">D</span> Query Microsoft Access</div>
+            <span class="badge-points">20 poin · ±25 menit</span>
+        </div>
+        <p class="body-text">Gunakan tabel yang telah di-link dari Neon.Tech untuk seluruh query berikut.</p>
+
+        <div class="subtask">
+            <h4>9. Query Daftar Peminjaman <span class="pts">7 poin</span></h4>
+            <p class="body-text">Buat query dengan nama <code>Q_DaftarPeminjaman</code> yang menampilkan: Nomor Peminjaman, Tanggal Pinjam, Tanggal Kembali, Nama Anggota, Kota Anggota, Judul Buku, Pengarang, dan Status Buku — menggabungkan tabel <code>pinjam</code>, <code>anggota</code>, dan <code>buku</code>. Transaksi yang belum dikembalikan tetap ditampilkan dengan <code>tanggalkembali</code> berupa <code>NULL</code>.</p>
+        </div>
+
+        <div class="subtask">
+            <h4>10. Query Status Peminjaman <span class="pts">7 poin</span></h4>
+            <p class="body-text">Buat query dengan nama <code>Q_StatusPeminjaman</code> yang menampilkan: Nomor Peminjaman, Nama Anggota, Judul Buku, Tanggal Pinjam, Tanggal Kembali, dan Status Peminjaman. Buat Calculated Field bernama <code>StatusPeminjaman</code>:</p>
+            <ul class="plain-list">
+                <li>Jika <code>tanggalkembali</code> bernilai <code>NULL</code> → tampilkan <strong>Belum Dikembalikan</strong>.</li>
+                <li>Jika <code>tanggalkembali</code> memiliki nilai → tampilkan <strong>Sudah Dikembalikan</strong>.</li>
+            </ul>
+        </div>
+
+        <div class="subtask">
+            <h4>11. Query Rekap Peminjaman Buku <span class="pts">6 poin</span></h4>
+            <p class="body-text">Buat query dengan nama <code>Q_RekapPeminjamanBuku</code> yang menampilkan: Nomor Buku, Judul Buku, Pengarang, dan Total Peminjaman menggunakan fungsi agregat <code>COUNT()</code>, dikelompokkan berdasarkan buku, dan diurutkan berdasarkan Total Peminjaman dari terbesar ke terkecil.</p>
+        </div>
+    </div>
+
+    <!-- Bagian E -->
+    <div class="card">
+        <div class="section-title">
+            <div class="left"><span class="num">E</span> Form Microsoft Access</div>
+            <span class="badge-points">10 poin · ±15 menit</span>
+        </div>
+        <p class="body-text">Buat form dengan nama <code>F_Peminjaman</code> untuk menampilkan dan/atau menginput data transaksi peminjaman. Form minimal menampilkan: Nomor Peminjaman, Tanggal Pinjam, Tanggal Kembali, Nomor Buku, Judul Buku, Nomor Anggota, Nama Anggota, dan Status Peminjaman. Jika memungkinkan, gunakan <strong>Combo Box</strong> untuk pemilihan Buku dan Anggota. Form harus menggunakan data dari Neon.Tech melalui Linked Table.</p>
+        <table class="data-table">
+            <tr><th>Komponen Penilaian</th><th>Nilai</th></tr>
+            <tr><td>Form berhasil dibuat</td><td class="num">2</td></tr>
+            <tr><td>Field sesuai kebutuhan</td><td class="num">2</td></tr>
+            <tr><td>Pemilihan buku/anggota</td><td class="num">2</td></tr>
+            <tr><td>Status peminjaman</td><td class="num">2</td></tr>
+            <tr><td>Kerapian tampilan</td><td class="num">2</td></tr>
+            <tr><td><strong>Total</strong></td><td class="num"><strong>10</strong></td></tr>
+        </table>
+    </div>
+
+    <!-- Bagian F -->
+    <div class="card">
+        <div class="section-title">
+            <div class="left"><span class="num">F</span> Report Microsoft Access</div>
+            <span class="badge-points">15 poin · ±20 menit</span>
+        </div>
+        <p class="body-text">Buat report dengan nama <code>R_LaporanPeminjaman</code> menggunakan <code>Q_DaftarPeminjaman</code> sebagai sumber data, dengan judul <strong>"LAPORAN PEMINJAMAN BUKU"</strong>. Report minimal menampilkan: Nomor Peminjaman, Tanggal Pinjam, Tanggal Kembali, Nama Anggota, Kota, Judul Buku, Pengarang, dan Status Peminjaman.</p>
+        <ul class="plain-list">
+            <li><strong>Grouping</strong>: dikelompokkan berdasarkan Kota Anggota.</li>
+            <li><strong>Footer</strong>: tambahkan Total Transaksi Peminjaman menggunakan fungsi agregat yang sesuai.</li>
+        </ul>
+        <table class="data-table">
+            <tr><th>Komponen Penilaian</th><th>Nilai</th></tr>
+            <tr><td>Report berhasil dibuat</td><td class="num">3</td></tr>
+            <tr><td>Data sesuai query</td><td class="num">3</td></tr>
+            <tr><td>Grouping</td><td class="num">3</td></tr>
+            <tr><td>Total transaksi</td><td class="num">3</td></tr>
+            <tr><td>Header/footer &amp; kerapian</td><td class="num">3</td></tr>
+            <tr><td><strong>Total</strong></td><td class="num"><strong>15</strong></td></tr>
+        </table>
+    </div>
+
+    <!-- Rekapitulasi -->
+    <div class="card">
+        <div class="section-title"><div class="left"><span class="num">✓</span> Rekapitulasi Nilai &amp; Alokasi Waktu</div></div>
+        <table class="data-table">
+            <tr><th>Bagian</th><th>Materi</th><th>CPMK</th><th>Nilai</th><th>Waktu</th></tr>
+            <tr><td>A</td><td>Import &amp; perbaikan tipe data Neon</td><td>CPMK 2</td><td class="num">20</td><td class="num">20 menit</td></tr>
+            <tr><td>B</td><td>Primary Key, Foreign Key &amp; Relationship</td><td>CPMK 2</td><td class="num">20</td><td class="num">20 menit</td></tr>
+            <tr><td>C</td><td>ODBC &amp; Linked Table</td><td>CPMK 2</td><td class="num">15</td><td class="num">15 menit</td></tr>
+            <tr><td>D</td><td>Query Access</td><td>CPMK 1</td><td class="num">20</td><td class="num">25 menit</td></tr>
+            <tr><td>E</td><td>Form Access</td><td>CPMK 1</td><td class="num">10</td><td class="num">15 menit</td></tr>
+            <tr><td>F</td><td>Report Access</td><td>CPMK 1</td><td class="num">15</td><td class="num">20 menit</td></tr>
+            <tr><td colspan="3"><strong>TOTAL</strong></td><td class="num"><strong>100</strong></td><td class="num"><strong>115 menit</strong></td></tr>
+        </table>
+        <p class="body-text" style="margin-top:10px;">Sisa waktu 5 menit digunakan untuk pengecekan dan pengumpulan — total waktu UTS 120 menit.</p>
+    </div>
+
+    <!-- Alur Pengerjaan -->
+    <div class="card">
+        <div class="section-title"><div class="left"><span class="num">→</span> Alur Pengerjaan</div></div>
+        <div class="vflow">
+            <div class="vflow-node highlight">📄 Data CSV (anggota, buku, pinjam)</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">☁️ Import ke Neon.Tech</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">🔍 Periksa &amp; Perbaiki Tipe Data</div>
+            <div class="vflow-node sub">TEXT → VARCHAR(n) / INTEGER / DATE</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">🔑 Analisis Primary Key</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">🔗 Analisis Foreign Key</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">🧩 Buat Relationship</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">✅ Verifikasi Referential Integrity</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">🔌 Koneksi ODBC</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">🔗 Link Table ke Microsoft Access</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">🧮 Buat Query</div>
+            <div class="vflow-node sub">Q_DaftarPeminjaman · Q_StatusPeminjaman · Q_RekapPeminjamanBuku</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node">🧾 Buat Form</div>
+            <div class="vflow-node sub">F_Peminjaman</div>
+            <div class="vflow-arrow">▼</div>
+            <div class="vflow-node highlight">📊 Buat Report</div>
+            <div class="vflow-node sub">R_LaporanPeminjaman</div>
+        </div>
+    </div>
+
+    <!-- Pengumpulan -->
+    <div class="card">
+        <div class="section-title"><div class="left"><span class="num">📤</span> Pengumpulan</div></div>
+        <p class="body-text">Pada akhir latihan/ujian, kumpulkan 2 item berikut.</p>
+        <div class="collect-grid">
+            <div class="collect-card">
+                <h4>1. Link Database Neon.Tech</h4>
+                <p>Kumpulkan link database Neon.Tech yang dapat digunakan dosen untuk pemeriksaan, lengkap dengan informasi akses (password/database credential) sesuai instruksi dosen.</p>
+                <p>Pastikan database masih aktif dan dapat diakses saat proses pemeriksaan.</p>
+            </div>
+            <div class="collect-card">
+                <h4>2. Database Microsoft Access</h4>
+                <p>Kumpulkan database <code>UTS_NIM_Nama.accdb</code> dalam bentuk ZIP:</p>
+                <div class="code-block">UTS_NIM_Nama.zip</div>
+            </div>
+        </div>
+        <div class="tip-box">💡 <span>Gunakan credential khusus untuk keperluan UTS, bukan password akun pribadi yang digunakan untuk layanan lain.</span></div>
+    </div>
+
+    <!-- Ketentuan -->
+    <div class="card">
+        <div class="section-title"><div class="left"><span class="num">📋</span> Ketentuan Ujian</div></div>
+        <ol class="plain-list">
+            <li>UTS/latihan dikerjakan secara individu.</li>
+            <li>Gunakan akun Neon.Tech masing-masing.</li>
+            <li>Gunakan file data yang diberikan dosen (diunduh dari Edlink).</li>
+            <li>Jangan mengubah isi data sumber kecuali diperlukan untuk memperbaiki tipe/struktur database.</li>
+            <li>Jangan membuat ulang tabel secara manual di Microsoft Access.</li>
+            <li>Microsoft Access harus menggunakan Linked Table dari database Neon.Tech.</li>
+            <li>Primary Key dan Foreign Key harus ditentukan berdasarkan analisis mahasiswa sendiri.</li>
+            <li>Relationship harus dibuat berdasarkan struktur dan makna data.</li>
+            <li>Pastikan database Neon.Tech dapat diakses oleh dosen pada saat pemeriksaan.</li>
+            <li>Pastikan file Microsoft Access dapat dibuka setelah diekstrak dari ZIP.</li>
+            <li>Nama file harus mengikuti format: <code>UTS_NIM_Nama.zip</code>.</li>
+            <li>Gunakan waktu pengerjaan secara efektif.</li>
+        </ol>
+    </div>
+
+    <!-- Rangkuman -->
+    <div class="card">
+        <div class="section-title"><div class="left"><span class="num">✎</span> Kata Kunci Persiapan UTS</div></div>
+        <ul class="kw-list">
+            <li>Import CSV</li>
+            <li>Tipe Data PostgreSQL</li>
+            <li>Primary Key</li>
+            <li>Foreign Key</li>
+            <li>Relationship</li>
+            <li>ODBC</li>
+            <li>Linked Table</li>
+            <li>Query (JOIN, Calculated Field, GROUP BY)</li>
+            <li>Form</li>
+            <li>Report</li>
+        </ul>
+    </div>
+
+    <div class="nav-footer">
+        <a href="pertemuan13.html" class="nav-btn prev">
+            <span class="nav-label">← Sebelumnya</span>
+            <span class="nav-title">Pertemuan 13 — Advanced Report dalam Access</span>
+        </a>
+        <a href="pertemuan15.html" class="nav-btn next">
+            <span class="nav-label">Selanjutnya →</span>
+            <span class="nav-title">Pertemuan 15 — UTS (Ujian Tengah Semester)</span>
+        </a>
+    </div>
+
+    <footer class="page-footer">
+        <p>© 2026 — Panduan Praktikum Database | Microsoft Access &amp; Neon.Tech</p>
+    </footer>
+
+</div>
+</body>
+</html>
