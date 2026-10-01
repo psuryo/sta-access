@@ -495,32 +495,32 @@
             <h4 class="sub-heading">Tabel anggota</h4>
             <table class="data-table">
                 <tr><th>Field</th><th>Tipe Data yang Sesuai</th></tr>
-                <tr><td><code>nomember</code></td><td>Teks dengan panjang sesuai</td></tr>
-                <tr><td><code>nama</code></td><td>Teks</td></tr>
-                <tr><td><code>alamat</code></td><td>Teks</td></tr>
-                <tr><td><code>kota</code></td><td>Teks</td></tr>
-                <tr><td><code>jenkel</code></td><td>Teks</td></tr>
+                <tr><td><code>nomember</code></td><td>varchar(5)</td></tr>
+                <tr><td><code>nama</code></td><td>varchar(50)</td></tr>
+                <tr><td><code>alamat</code></td><td>varchar(100)</td></tr>
+                <tr><td><code>kota</code></td><td>varchar(50)</td></tr>
+                <tr><td><code>jenkel</code></td><td>varchar(2)</td></tr>
             </table>
 
             <h4 class="sub-heading">Tabel buku</h4>
             <table class="data-table">
                 <tr><th>Field</th><th>Tipe Data yang Sesuai</th></tr>
-                <tr><td><code>nobuku</code></td><td>Teks</td></tr>
-                <tr><td><code>judul</code></td><td>Teks</td></tr>
-                <tr><td><code>pengarang</code></td><td>Teks</td></tr>
-                <tr><td><code>tahunterbit</code></td><td>Bilangan bulat</td></tr>
-                <tr><td><code>penerbit</code></td><td>Teks</td></tr>
-                <tr><td><code>status</code></td><td>Teks</td></tr>
+                <tr><td><code>nobuku</code></td><td>varchar(5)</td></tr>
+                <tr><td><code>judul</code></td><td>varchar(50)</td></tr>
+                <tr><td><code>pengarang</code></td><td>varchar(50)</td></tr>
+                <tr><td><code>tahunterbit</code></td><td>integer</td></tr>
+                <tr><td><code>penerbit</code></td><td>varchar(50)</td></tr>
+                <tr><td><code>status</code></td><td>varchar(20)</td></tr>
             </table>
 
             <h4 class="sub-heading">Tabel pinjam</h4>
             <table class="data-table">
                 <tr><th>Field</th><th>Tipe Data yang Sesuai</th></tr>
-                <tr><td><code>nopinjam</code></td><td>Teks</td></tr>
-                <tr><td><code>nobuku</code></td><td>Teks</td></tr>
-                <tr><td><code>nomember</code></td><td>Teks</td></tr>
-                <tr><td><code>tanggalpinjam</code></td><td>Tanggal</td></tr>
-                <tr><td><code>tanggalkembali</code></td><td>Tanggal, dapat bernilai NULL</td></tr>
+                <tr><td><code>nopinjam</code></td><td>varchar(5)</td></tr>
+                <tr><td><code>nobuku</code></td><td>varchar(5)</td></tr>
+                <tr><td><code>nomember</code></td><td>varchar(5)</td></tr>
+                <tr><td><code>tanggalpinjam</code></td><td>Date</td></tr>
+                <tr><td><code>tanggalkembali</code></td><td>Date</td></tr>
             </table>
         </div>
         <div class="tip-box">💡 <span>Tentukan sendiri ukuran <code>VARCHAR(n)</code> yang sesuai berdasarkan karakteristik data.</span></div>
